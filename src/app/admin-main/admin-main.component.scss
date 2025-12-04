@@ -1,0 +1,70 @@
+/* Ensure the layout container covers the full height of the viewport */
+.layout-container {
+    display: flex;
+    min-height: 100vh;
+    margin-left: 20px;
+  }
+  
+  /* Sidebar styling */
+  // app-menu-bar {
+  //   width: 200px; /* Adjust the width as needed */
+  //   background-color: #f8f9fa; /* Sidebar background color */
+  //   position: fixed;
+  //   top: 0;
+  //   bottom: 0;
+  //   left: 0;
+  //   z-index: 1000;
+  // }
+  
+  /* Main content styling */
+  .main-content {
+    // margin-left: 230px; /* Adjust the margin based on the sidebar width */
+    // margin-right: 300px; /* Adjust the margin based on the notification bar width */
+    flex: 1;
+    display: flex;
+    // padding: 20px;
+    flex-direction: column;
+    // background-color: #f2f4ea; /* Optional: to see the content clearly */
+  }
+    .main-content.collapsed-sidebar {
+  margin-left: 80px;  /* Reduced margin for collapsed sidebar */
+}
+  
+  /* Header styling */
+  app-header {
+    flex-shrink: 0; /* Prevents the header from shrinking */
+    background-color: #f1f1f1; /* Adjust the background color as needed */
+    padding: 10px; /* Adjust the padding as needed */
+    box-sizing: border-box; /* Ensures padding is included in the total width */
+  }
+  
+  /* Notification bar styling */
+  app-notification-bar {
+    background-color: #f2f4ea; /* Notification bar background color */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 991.98px) {
+    .layout-container {
+        flex-direction: column;
+    }
+  
+    app-menu-bar {
+        width: 100%;
+        position: static;
+    }
+  
+    .main-content {
+        margin: 0;
+    }
+  
+    app-notification-bar {
+        width: 100%;
+        position: static;
+    }
+  }

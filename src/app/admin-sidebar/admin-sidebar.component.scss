@@ -1,0 +1,318 @@
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    background: white; /* Dark navy background for the sidebar */
+    color: #0E3E1B;
+    padding-top: 20px;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    z-index: 1000;
+    box-shadow: 6px 0 27px -3px rgb(120, 201, 120); /* Right-side only */
+  }
+  
+  .sidebar .nav-item {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .sidebar.collapsed {
+    width: 80px; /* Reduced width when collapsed */
+}
+  .sidebar.collapsed .module-text, .sidebar.collapsed .history-record-text {
+    display: none; /* Hide text when collapsed */
+}
+  .sidebar .nav-link {
+    color: #0E3E1B; /* Default white text color */
+    padding: 15px;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    width: 105%;
+  }
+  
+  .sidebar .nav-link:hover {
+    background: #f6f6f6; /* Darker gray hover effect for better contrast */
+    color: #0E3E1B; /* Slightly lighter text on hover */
+  }
+  
+  .sidebar .nav-link.active {
+    background: #e6f8e6; /* Vibrant green for the active state */
+    color: #0E3E1B; /* Ensure active text remains white */
+    border-left: 4px solid #0E3E1B; /* Yellow border for a modern, focused look */
+    font-weight: bold;
+  }
+
+  .flyout-dropdown {
+    /* 🟢 CRITICAL: Pulls the dropdown out of the normal flow */
+    position: fixed;
+    
+    /* 🟢 CRITICAL: Pushes the dropdown outside the list item's width (250px) */
+
+    
+    /* Appearance when visible */
+    background: white; /* Use a distinct background */
+    color:#1d5730 ;
+    min-width: 200px;
+    // box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+    z-index: 1001; /* Must be higher than the main sidebar */
+    box-shadow: 2px 2px 10px rgba(99, 186, 57, 0.4);
+    // margin-left: -0.5rem !important;
+    /* Hide by default using opacity and visibility */
+    width: 250px;
+    left: 251px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 10000;
+    /* Reset original indentation/margins for absolute positioning */
+    // margin: 0;
+    padding: 5px 0;
+    margin-top: -59px;
+    list-style: none;
+}
+
+/* 🟢 CRITICAL: Show the dropdown menu on hover of the parent li */
+.dropdown-hover-parent:hover .flyout-dropdown {
+    opacity: 1;
+    visibility: visible;
+    width: 245px;
+    z-index: 10000;
+        left: 235px;
+    margin-top: -61px;
+}
+
+.dropdown-hover-parent:hover .flyout-dropdown.collapsed {
+    opacity: 1;
+    visibility: visible;
+    width: 200px;
+    z-index: 10000;
+            left: 63px;
+    margin-top: -61px;
+
+}
+
+.flyout-dropdown.collapsed{
+  left: 63px;
+  margin-top: -57px;
+}
+
+/* Styling for sub-items */
+.flyout-dropdown .nav-link {
+    padding: 10px 15px; 
+    width: 100%;
+    /* Ensure text color is right for the new background */
+    color: #1d5730;
+
+    border-bottom: 4px solid #f8f9fa;
+}
+
+/* Optional: Keep the parent link highlighted on hover */
+.dropdown-hover-parent:hover > .nav-link {
+    background: #e3f5e6;
+    color: #1d5730
+}
+  .collapse-logo{
+        width: 35px !important;
+    height: 25px !important;
+    display: block;
+    background-size: 72%;
+    background-repeat: no-repeat;
+    background-image: url('/public/collapse.png');
+    position: absolute;
+    left: 13em;
+  }
+
+  .reput-logo-1{
+    width: 42px;
+    height: 36px;
+    display: block;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-image: url('/public/reput-icon.png');
+    margin-left: 12px;
+  }
+
+  .collapse-logo.rotated {
+  transform: rotate(180deg);  /* Rotate the icon by 180 degrees when collapsed */
+  left: 1em;
+  position: relative;
+}
+  .module-icon{
+    width: 35px;
+    height: 25px;
+    display: block;
+    background-size: 72%;
+    background-repeat: no-repeat;
+    background-image: url('/public/modules.png');
+  }
+
+  .history-record-icon{
+    width: 35px;
+    height: 25px;
+    display: block;
+    background-size: 72%;
+    background-repeat: no-repeat;
+    background-image: url('/public/history-record.png');
+  }
+
+    .logout-icon{
+    width: 35px;
+    height: 25px;
+    display: block;
+    background-size: 54%;
+    background-repeat: no-repeat;
+    background-image: url('/public/logout-icon.png');
+  }
+
+  .production-icon{
+    width: 25px;
+    height: 28px;
+    display: block;
+    background-size: 87%;
+    background-repeat: no-repeat;
+    margin-right: 10px;
+    background-image: url('/public/production-icon.png');
+  }
+
+    .supplier-tracking-icon{
+    width: 35px;
+    height: 25px;
+    display: block;
+    background-size: 72%;
+    background-repeat: no-repeat;
+    margin-right: 0px;
+    background-image: url('/public/supplier-tracking.png');
+  }
+
+  .benchmark-icon{
+    width: 30px;
+    height: 25px;
+    display: block;
+    background-size: 72%;
+    background-repeat: no-repeat;
+    background-image: url('/public/benchmark-icon.png');
+  }
+  
+  
+    .sustain-ai-icon{
+    width: 35px;
+    height: 30px;
+    display: block;
+    background-size: 88%;
+    background-repeat: no-repeat;
+    background-image: url('/public/sustain-ai.png');
+  }
+
+  .support-icon{
+    width: 35px;
+    height: 30px;
+    display: block;
+    background-size: 75%;
+    margin-right: -5px;
+    background-repeat: no-repeat;
+    background-image: url('/public/support-help.png');
+  }
+
+  svg {
+    transition: transform 0.3s ease; /* Animates rotation smoothly */
+  }
+
+  svg.rotated {
+    transform: rotate(180deg); /* Rotate 180 degrees when the dropdown is open */
+  }
+
+//   .templateForm{
+//     background: url('../../../../public/templateForm.png');
+//       display: inline-block;
+//       width: 25px;
+//       height: 19px;
+//       margin-left: 5px;
+//       background-repeat: no-repeat;
+//   }
+  
+//   .document{
+//     background: url('../../../../public/document.png');
+//       display: inline-block;
+//       width: 27px;
+//       height: 20px;
+//       margin-left: 4px;
+//       background-repeat: no-repeat;
+//   }
+   
+    .toggled .sidebar {
+      margin-left: -250px;
+    }
+    .toggled .content {
+      margin-left: 0;
+    }
+    @media (max-width: 1000px) {
+      .navbar-toggler {
+        display: inline;
+      }
+      .sidebar {
+        margin-left: -290px;
+      }
+      .content {
+        margin-left: 0;
+      }
+      .toggled .sidebar {
+        margin-left: 0;
+      }
+      .toggled .content {
+        margin-left: 290px;
+      }
+      .right-div{
+        display: none;
+      }
+      .content {
+        width: 100%;
+      }
+    }
+    @media (min-width: 1001px) {
+      .navbar-toggler {
+        display: none;
+      }
+    
+      .canvas-button{
+      display: none;
+      }
+    }
+    .navbar-light .navbar-nav .nav-link {
+      color: #000000;
+    }
+    .navbar-light .navbar-nav .nav-link label {
+      font-weight: 400;
+      font-size: 16px;
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+      .reput-logo{
+    width: 160px;
+    height: 50px;
+    display: block;
+    align-items: center;
+    background-size: 105%;
+    background-repeat: no-repeat;
+    background-image: url('/public/reput-logo.png');
+  }
+    .logo-text {
+     color: #1d5730;
+      font-size: 1.1rem;
+      margin-top: 17px;
+    }
+    .nav-item{
+      padding: 10px;
+     }
+    
