@@ -105,56 +105,49 @@ export class SalesDashboardComponent {
 
     setRevenueCustomerTrendsChart() {
     this.revenueCustomerTrendsChartOptions = {
-      chart: {
-        type: 'scatter',
-        zoomType: 'xy'
-      },
-      title: {
-        text: 'Revenue & Customer Trends'
-      },
-      subtitle: {
-        text: 'Expected revenue and new customers over time'
-      },
-      xAxis: {
-        title: {
-          enabled: true,
-          text: 'Time'
-        },
-        categories: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5']  // Replace with actual data points
-      },
-      yAxis: {
-        title: {
-          text: 'Value'
-        },
-        min: 0
-      },
-      series: [{
-        name: 'New Customers',
-        color: '#00bcd4',
-        data: [
-          [0, 10], [1, 15], [2, 12], [3, 18], [4, 22]  // Replace with actual new customer data
-        ],
-        marker: {
-          radius: 5
-        }
-      }, {
-        name: 'Revenue ($)',
-        color: '#9b4dff',
-        data: [
-          [0, 2000], [1, 2500], [2, 2200], [3, 2700], [4, 3000]  // Replace with actual revenue data
-        ],
-        marker: {
-          radius: 5
-        }
-      }],
-      legend: {
-        layout: 'vertical',
-        align: 'right',
-        verticalAlign: 'top'
+  chart: {
+    type: 'line', // Use line chart type
+  },
+  title: {
+    text: 'Revenue & Customer Trends'
+  },
+  xAxis: {
+    categories: ['Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5'],
+    title: {
+      text: 'Time'
+    }
+  },
+  yAxis: {
+    title: {
+      text: 'Value'
+    }
+  },
+  series: [
+    {
+      name: 'Revenue ($)',
+      type: 'line',  // Ensure this is a line type
+      data: [2000, 2500, 2700, 2300, 3100],  // Your revenue data points
+      color: '#8e44ad',  // Purple color for the line
+      lineWidth: 2,  // Optional: set line width
+      marker: {
+        enabled: true,  // Optional: show markers at data points
+        symbol: 'diamond',
+        radius: 6
       }
-    };
-  }
-
+    },
+    {
+      name: 'New Customers',
+      type: 'line',  // Ensure this is also a line type
+      data: [100, 120, 150, 130, 180],  // Your new customers data points
+      color: '#1abc9c',  // Turquoise color for the line
+      lineWidth: 2,  // Optional: set line width
+      marker: {
+        enabled: true,  // Optional: show markers at data points
+        symbol: 'circle',
+        radius: 6
+      }
+    }
+  ]};}
   // Function to set up the pie chart for Pipeline Status Breakdown
   setPipelineStatusBreakdownChart() {
     this.pipelineStatusBreakdownChartOptions = {

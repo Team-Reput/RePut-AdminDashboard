@@ -178,10 +178,10 @@
   border-left: 4px solid transparent;
 }
 
-.stat-card.purple-border { border-left-color: #8b5cf6; }
-.stat-card.cyan-border { border-left-color: #06b6d4; }
-.stat-card.green-border { border-left-color: #10b981; }
-.stat-card.red-border { border-left-color: #ef4444; }
+.stat-card.purple-border { border-left-color: #8b5cf6;background: linear-gradient(135deg, #e8e8f124 0%, #5871dea8 100%); }
+.stat-card.cyan-border { border-left-color: #06b6d4;  background: linear-gradient(135deg, #e8e8f124 0%, #58d4dea8 100%);}
+.stat-card.green-border { border-left-color: #10b981; background: linear-gradient(135deg, rgba(232, 232, 241, 0.1411764706) 0%, #5ff1b3c9 100%);}
+.stat-card.red-border { border-left-color: #ef4444;  background: linear-gradient(135deg, rgba(232, 232, 241, 0.1411764706) 0%, #f4433694 100%);}
 
 .stat-header {
   display: flex;
@@ -311,6 +311,8 @@
   border-radius: 5px;
   width: 600px;  /* Increased the width */
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    max-height: 80vh;  /* Set a max height for the popup */
+  overflow-y: auto;  /* Enable vertical scrolling */
 }
 
 /* Flexbox for side-by-side fields */

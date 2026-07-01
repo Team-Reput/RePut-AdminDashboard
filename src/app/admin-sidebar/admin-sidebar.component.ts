@@ -1,15 +1,18 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-admin-sidebar',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  standalone: true,                           // ← must have this
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './admin-sidebar.component.html',
-  styleUrl: './admin-sidebar.component.scss'
+  styleUrls: ['./admin-sidebar.component.scss']
 })
 export class AdminSidebarComponent {
-constructor(){}
+  constructor(private auth: AuthService) {}
+
+  logout() {
+    this.auth.logout();
+  }
 }

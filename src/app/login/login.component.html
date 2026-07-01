@@ -1,0 +1,124 @@
+<div class="login-wrapper">
+  <div class="form-card">
+
+    <div class="card-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="url(#lg)"/>
+          <path d="M9 8h8a5 5 0 010 10H9V8zm0 10h6l5 6H14l-5-6z" fill="#fff"/>
+          <defs>
+            <linearGradient id="lg" x1="0" y1="0" x2="32" y2="32">
+              <stop offset="0%" stop-color="#3B5BDB"/>
+              <stop offset="100%" stop-color="#6741D9"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="logo-name">RePut<span class="logo-dot">.ai</span></span>
+    </div>
+
+    <div class="form-header">
+      <h2>Welcome back</h2>
+      <p>Sign in to your reput.ai workspace</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="login-form">
+
+      <!-- Email -->
+      <div class="field" [class.field--error]="isFieldInvalid('email')">
+        <label for="email">Work email</label>
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="5" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 5l7 6 7-6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="you&#64;reput.ai"
+            autocomplete="email"
+          />
+        </div>
+        <span class="field-err" *ngIf="isFieldInvalid('email')">{{ getEmailError() }}</span>
+      </div>
+
+      <!-- Password -->
+      <div class="field" [class.field--error]="isFieldInvalid('password')">
+        <label for="password">
+          Password
+          <a class="forgot-link" href="/forgot-password">Forgot?</a>
+        </label>
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 20 20" fill="none">
+            <rect x="5" y="9" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button type="button" class="eye-btn" (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showPassword" viewBox="0 0 20 20" fill="none">
+              <path d="M2 10s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 20 20" fill="none">
+              <path d="M3 3l14 14M8.46 8.54A2.5 2.5 0 0012.5 12.5M6.18 6.24C4.2 7.42 2.8 9.1 2 10c1.5 2.5 4.5 5 8 5 1.3 0 2.5-.3 3.6-.8M10 5c3.5 0 6.5 2.5 8 5a13 13 0 01-1.7 2.4"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <span class="field-err" *ngIf="isFieldInvalid('password')">Password is required.</span>
+      </div>
+
+      <!-- Remember me -->
+      <div class="remember-row">
+        <label class="check-label">
+          <input type="checkbox" formControlName="rememberMe"/>
+          <span class="check-box"></span>
+          Keep me signed in
+        </label>
+      </div>
+
+      <!-- Auth error -->
+      <div class="alert-error" *ngIf="loginError" role="alert">
+        <svg viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 6v4.5M10 13v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        {{ loginError }}
+      </div>
+
+      <!-- Sign in -->
+      <button type="submit" class="btn-signin" [disabled]="isLoading">
+        <ng-container *ngIf="!isLoading">Sign in</ng-container>
+        <ng-container *ngIf="isLoading">
+          <span class="spin"></span> Signing in…
+        </ng-container>
+      </button>
+
+    </form>
+
+    <div class="divider"><span>or continue with</span></div>
+
+    <button type="button" class="btn-google" (click)="loginWithSSO()">
+      <svg viewBox="0 0 24 24" width="18" height="18">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+      </svg>
+      Sign in with Google
+    </button>
+
+    <p class="help-text">
+      Need access? Contact <a href="mailto:it&#64;reput.ai">it&#64;reput.ai</a>
+    </p>
+
+  </div>
+</div>
