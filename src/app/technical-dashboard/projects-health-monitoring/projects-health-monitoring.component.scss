@@ -1,0 +1,365 @@
+:host {
+  display: block;
+  margin-bottom: 20px;
+}
+
+/* Panel styles */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px 26px;
+  color: var(--ink);
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.panel-head h3 {
+  font-family: var(--display);
+  font-size: 19px;
+  margin: 0 0 3px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-head p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.panel-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  font-family: var(--body);
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 9px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.2s;
+}
+
+.btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-verify {
+  background: var(--verify);
+  color: #fff;
+}
+
+.btn-verify:hover {
+  background: #0F5A41;
+}
+
+select.filter {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--ink);
+  background: #fff;
+  cursor: pointer;
+}
+
+select.filter:focus {
+  outline: none;
+  border-color: var(--verify);
+}
+
+/* Project cards */
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pcard {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  position: relative;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pcard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.pcard::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 12px 0 0 12px;
+  background: var(--pri, var(--verify));
+}
+
+.pcard.child {
+  margin-left: 34px;
+  background: #FBFBFA;
+}
+
+.pcard.child::after {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: -12px;
+  width: 1px;
+  height: calc(50% + 12px);
+  border-left: 2px dashed var(--line);
+}
+
+.pcard.child .connector {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  width: 18px;
+  border-top: 2px dashed var(--line);
+}
+
+.prow-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.pname-block h4 {
+  margin: 0 0 2px;
+  font-family: var(--display);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pname-block .client {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.pname-block .subof {
+  font-size: 11px;
+  color: var(--sales);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.tag-row {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-family: var(--mono);
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+.tag.status-progress {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.tag.status-accepted {
+  color: var(--verify);
+  background: var(--verify-soft);
+}
+
+.tag.status-completed {
+  color: var(--verify);
+  background: var(--verify-soft);
+}
+
+.tag.status-hold {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.tag.status-cancelled {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.tag.pri-high {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
+.tag.pri-medium {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.tag.pri-low {
+  color: var(--verify);
+  background: var(--verify-soft);
+}
+
+.tag.pri-critical {
+  color: #fff;
+  background: #2B1B45;
+}
+
+.prow-bottom {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.progress-block {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ptrack {
+  flex: 1;
+  height: 7px;
+  background: #EDEDE9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pfill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease-out;
+}
+
+.pnum {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  width: 38px;
+  text-align: right;
+  color: var(--ink);
+}
+
+.team-stack {
+  display: flex;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sales);
+  color: #fff;
+  font-size: 9.5px;
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  border: 2px solid #fff;
+  margin-left: -8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.avatar.more {
+  background: #D8DCD6;
+  color: var(--ink-soft);
+}
+
+.deadline {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.deadline.ok {
+  color: var(--ink-soft);
+}
+
+.deadline.soon {
+  color: var(--amber);
+}
+
+.deadline.overdue {
+  color: var(--red);
+}
+
+.qactions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.qbtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qbtn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.qbtn.sales {
+  color: var(--sales);
+}
+
+.qbtn.sales:hover {
+  background: var(--sales-soft);
+  border-color: var(--sales);
+}
+
+.qbtn.amber {
+  color: var(--amber);
+}
+
+.qbtn.amber:hover {
+  background: var(--amber-soft);
+  border-color: var(--amber);
+}
+
+.section-note {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin: 22px 0 8px;
+  font-family: var(--mono);
+}

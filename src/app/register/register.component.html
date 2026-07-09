@@ -18,11 +18,29 @@
     </div>
 
     <div class="form-header">
-      <h2>Welcome back</h2>
-      <p>Sign in to your reput.ai workspace</p>
+      <h2>Create an account</h2>
+      <p>Sign up to join reput.ai workspace</p>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate class="login-form">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate class="login-form">
+
+      <!-- Full Name -->
+      <div class="field" [class.field--error]="isFieldInvalid('full_name')">
+        <label for="full_name">Full Name</label>
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 20 20" fill="none">
+            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            id="full_name"
+            type="text"
+            formControlName="full_name"
+            placeholder="John Doe"
+            autocomplete="name"
+          />
+        </div>
+        <span class="field-err" *ngIf="isFieldInvalid('full_name')">{{ getFieldError('full_name') }}</span>
+      </div>
 
       <!-- Email -->
       <div class="field" [class.field--error]="isFieldInvalid('email')">
@@ -36,19 +54,16 @@
             id="email"
             type="email"
             formControlName="email"
-            placeholder="you&#64;reput.ai"
+            placeholder="you@reput.ai"
             autocomplete="email"
           />
         </div>
-        <span class="field-err" *ngIf="isFieldInvalid('email')">{{ getEmailError() }}</span>
+        <span class="field-err" *ngIf="isFieldInvalid('email')">{{ getFieldError('email') }}</span>
       </div>
 
       <!-- Password -->
       <div class="field" [class.field--error]="isFieldInvalid('password')">
-        <label for="password">
-          Password
-          <a class="forgot-link" href="/forgot-password">Forgot?</a>
-        </label>
+        <label for="password">Password</label>
         <div class="input-wrap">
           <svg class="input-ico" viewBox="0 0 20 20" fill="none">
             <rect x="5" y="9" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
@@ -59,7 +74,7 @@
             [type]="showPassword ? 'text' : 'password'"
             formControlName="password"
             placeholder="••••••••"
-            autocomplete="current-password"
+            autocomplete="new-password"
           />
           <button type="button" class="eye-btn" (click)="togglePassword()"
             [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
@@ -73,65 +88,73 @@
             </svg>
           </button>
         </div>
-        <span class="field-err" *ngIf="isFieldInvalid('password')">Password is required.</span>
+        <span class="field-err" *ngIf="isFieldInvalid('password')">{{ getFieldError('password') }}</span>
       </div>
 
-      <!-- Remember me -->
-      <div class="remember-row">
-        <label class="check-label">
-          <input type="checkbox" formControlName="rememberMe"/>
-          <span class="check-box"></span>
-          Keep me signed in
-        </label>
+      <!-- Role -->
+      <div class="field" [class.field--error]="isFieldInvalid('role')">
+        <label for="role">Role</label>
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 20 20" fill="none">
+            <path d="M7.5 11.5L9 10m0 0l4-4m-4 4L6 13M10 5a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <select id="role" formControlName="role" class="select-input">
+            <option value="user">Standard User</option>
+            <option value="sales">Sales Team</option>
+            <option value="technical">Technical Team</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
+        <span class="field-err" *ngIf="isFieldInvalid('role')">Role is required.</span>
       </div>
 
-      <!-- Auth success -->
-      <div class="alert-success" *ngIf="loginSuccess" role="alert">
-        <svg viewBox="0 0 20 20" fill="none" style="width: 16px; height: 16px; flex-shrink: 0;">
+      <!-- Department -->
+      <div class="field" [class.field--error]="isFieldInvalid('department')">
+        <label for="department">Department (Optional)</label>
+        <div class="input-wrap">
+          <svg class="input-ico" viewBox="0 0 20 20" fill="none">
+            <path d="M3 17V3a1 1 0 011-1h12a1 1 0 011 1v14M2 17h16M7 6h2m-2 3h2m-2 3h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            id="department"
+            type="text"
+            formControlName="department"
+            placeholder="e.g. Sales, Operations, HR"
+          />
+        </div>
+      </div>
+
+      <!-- Success Alert -->
+      <div class="alert-success" *ngIf="registerSuccess" role="alert">
+        <svg viewBox="0 0 20 20" fill="none" class="alert-ico">
           <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
           <path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        {{ loginSuccess }}
+        {{ registerSuccess }}
       </div>
 
-      <!-- Auth error -->
-      <div class="alert-error" *ngIf="loginError" role="alert">
-        <svg viewBox="0 0 20 20" fill="none">
+      <!-- Error Alert -->
+      <div class="alert-error" *ngIf="registerError" role="alert">
+        <svg viewBox="0 0 20 20" fill="none" class="alert-ico">
           <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
           <path d="M10 6v4.5M10 13v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
-        {{ loginError }}
+        {{ registerError }}
       </div>
 
-      <!-- Sign in -->
+      <!-- Submit button -->
       <button type="submit" class="btn-signin" [disabled]="isLoading">
-        <ng-container *ngIf="!isLoading">Sign in</ng-container>
+        <ng-container *ngIf="!isLoading">Register</ng-container>
         <ng-container *ngIf="isLoading">
-          <span class="spin"></span> Signing in…
+          <span class="spin"></span> Creating account…
         </ng-container>
       </button>
 
     </form>
 
-    <div class="divider"><span>or continue with</span></div>
+    <div class="divider"><span>Already have an account?</span></div>
 
-    <button type="button" class="btn-google" (click)="loginWithSSO()">
-      <svg viewBox="0 0 24 24" width="18" height="18">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-      </svg>
-      Sign in with Google
-    </button>
-
-    <p class="help-text">
-      Don't have an account? <a href="/register">Sign Up</a>
-    </p>
-
-    <p class="help-text" style="margin-top: 8px;">
-      Need access? Contact <a href="mailto:it&#64;reput.ai">it&#64;reput.ai</a>
-    </p>
+    <a href="/login" class="btn-login-redirect">Sign In</a>
 
   </div>
 </div>

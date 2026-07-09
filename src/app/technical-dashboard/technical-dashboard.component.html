@@ -3,8 +3,8 @@
 
   <!-- Main Content -->
   <main class="main-content">
-  
-   
+
+
 
     <!-- Dashboard Content -->
     <div class="content">
@@ -62,9 +62,7 @@
           </div>
           <p class="chart-subtitle">Schedule rate and latency over time</p>
           <div class="chart-placeholder">
-            <highcharts-chart
-              [Highcharts]="Highcharts"
-              [options]="loanDisbursementChartOptions"
+            <highcharts-chart [Highcharts]="Highcharts" [options]="loanDisbursementChartOptions"
               style="width: 100%; height: 300px; display: block;">
             </highcharts-chart>
           </div>
@@ -87,9 +85,7 @@
           </div>
           <p class="chart-subtitle">Maximum data processed categorization</p>
           <div class="chart-placeholder pie">
-            <highcharts-chart
-              [Highcharts]="Highcharts"
-              [options]="pieChartOptions"
+            <highcharts-chart [Highcharts]="Highcharts" [options]="pieChartOptions"
               style="width: 100%; height: 300px; display: block;">
             </highcharts-chart>
           </div>
@@ -97,92 +93,301 @@
       </div>
 
       <!-- Projects Section -->
-      <div class="section-card">
-        <div class="section-header">
-          <div>
-            <h3>📋 Projects Health Monitoring</h3>
-            <p>Track project performance and uptime</p>
-          </div>
-          <div class="header-actions">
-            <button class="select-btn" routerLink="/select-project">Select Project</button>
-            <button class="add-btn" (click)="openProjectForm()">+ Add Project</button>
-          </div>
-        </div>
-        <p class="empty-state">No projects yet. Add your first project to start monitoring.</p>
-      </div>
+      <app-projects-health-monitoring [projects]="projects" (newProject)="openNewProjectForm()"
+        (updateProgress)="openUpdateProgressForProject($event)" (logMeeting)="openLogMeetingForProject($event)">
+      </app-projects-health-monitoring>
 
       <!-- Review Meetings Section -->
-      <div class="section-card">
-        <div class="section-header">
-          <div>
-            <h3>📝 Review Meetings</h3>
-            <p>Efficiency reports and meeting notes</p>
-          </div>
-          <button class="add-btn">+ Add Meeting</button>
-        </div>
-        <p class="empty-state">No review meetings recorded yet.</p>
-      </div>
+      <app-review-meetings
+        [meetings]="meetings"
+        [projects]="projects"
+        (logMeeting)="openLogMeetingForm()">
+      </app-review-meetings>
     </div>
   </main>
 </div>
 
 
-<div *ngIf="isProjectFormVisible" class="popup-overlay">
-  <div class="popup-content">
-    <h2>Add New Project</h2>
-    
-    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
-      
-      <!-- Row with two fields side by side -->
-      
-        <div class="form-group">
-          <label for="projectName">Project Name</label>
-          <input type="text" id="projectName" formControlName="projectName" placeholder="E-Commerce Platform" />
+<!-- ================= NEW PROJECT FORM ================= -->
+<div class="premium-overlay" *ngIf="isNewProjectFormVisible" [class.show]="isNewProjectFormVisible">
+  <div class="premium-modal">
+    <div class="premium-modal-head">
+      <div>
+        <div class="tag">
+          <h3>● New project</h3>
         </div>
 
-        <div class="form-group">
-          <label for="status">Status</label>
-          <div class="custom-select">
-            <select id="status" formControlName="status">
-              <option value="healthy">Healthy</option>
-              <option value="warning">Warning</option>
-              <option value="critical">Critical</option>
-            </select>
-            <span class="select-icon">✓</span>
+        <p>Track client, timeline, and delivery status in one place.</p>
+      </div>
+      <button class="premium-modal-close" (click)="closeNewProjectForm()">✕</button>
+    </div>
+    <form [formGroup]="newProjectForm" (ngSubmit)="onSubmitNewProject()">
+      <div class="premium-modal-body">
+        <div class="fgroup">
+          <label>Project name</label>
+          <input formControlName="projectName" placeholder="E-commerce platform revamp">
+        </div>
+
+        <div class="frow">
+          <div class="fgroup">
+            <label>Client name</label>
+            <input formControlName="clientName" placeholder="Acme Textiles">
           </div>
-          
-          <div class="status-options">
-            <div 
-              class="status-option" 
-              *ngFor="let status of statusOptions"
-              [class.selected]="projectForm.get('status')?.value === status.value"
-              (click)="selectStatus(status.value)"
-            >
-              <span class="status-label">{{ status.label }}</span>
-              <span class="check-icon" *ngIf="projectForm.get('status')?.value === status.value">✓</span>
+          <div class="fgroup">
+            <label>Client contact</label>
+            <input formControlName="clientContact" placeholder="contact@acme.com">
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Parent project <span class="hint">optional — link if this is a sub-project</span></label>
+          <select formControlName="parentProject">
+            <option value="">None — this is a standalone project</option>
+            <option *ngFor="let p of projects" [value]="p.name">{{ p.name }}</option>
+          </select>
+        </div>
+
+        <div class="section-tag">Timeline &amp; priority</div>
+        <div class="frow">
+          <div class="fgroup">
+            <label>Start date</label>
+            <input formControlName="startDate" type="text">
+          </div>
+          <div class="fgroup">
+            <label>Deadline</label>
+            <input formControlName="deadline" type="text" placeholder="dd-mm-yyyy">
+          </div>
+        </div>
+        <div class="fgroup">
+          <label>Priority</label>
+          <div class="pill-select">
+            <div class="pill" [class.sel]="newProjectForm.get('priority')?.value === 'low'"
+              (click)="newProjectForm.patchValue({ priority: 'low' })">Low</div>
+            <div class="pill" [class.sel]="newProjectForm.get('priority')?.value === 'medium'"
+              (click)="newProjectForm.patchValue({ priority: 'medium' })">Medium</div>
+            <div class="pill" [class.sel]="newProjectForm.get('priority')?.value === 'high'"
+              (click)="newProjectForm.patchValue({ priority: 'high' })">High</div>
+            <div class="pill" [class.sel]="newProjectForm.get('priority')?.value === 'critical'"
+              (click)="newProjectForm.patchValue({ priority: 'critical' })">Critical</div>
+          </div>
+        </div>
+
+        <div class="section-tag">Team &amp; status</div>
+        <div class="fgroup">
+          <label>Team members involved</label>
+          <div class="member-picker">
+            <div class="member-chip" *ngFor="let member of newProjectTeamMembers; let i = index">
+              <span class="avatar">{{ getInitials(member) }}</span>{{ member }}
+              <span class="rm" (click)="removeTeamMember(i)">✕</span>
             </div>
+            <input class="member-input" type="text" placeholder="Type a name, press Enter…" #teamMemberInput
+              (keydown.enter)="$event.preventDefault(); addTeamMember(teamMemberInput.value); teamMemberInput.value = ''"
+              (keydown.comma)="$event.preventDefault(); addTeamMember(teamMemberInput.value); teamMemberInput.value = ''"
+              (keydown.backspace)="teamMemberInput.value === '' && removeTeamMember(newProjectTeamMembers.length - 1)">
           </div>
+          <p class="field-note">Add anyone — no fixed list. Press Enter or comma after each name.</p>
         </div>
 
-      <!-- Row with uptime field -->
-      <div class="form-row">
-        <div class="form-group">
-          <label for="uptime">Uptime (%)</label>
-          <input 
-            type="number" 
-            id="uptime" 
-            formControlName="uptime"
-            placeholder="0.1"
-            step="0.1"
-            min="0"
-            max="100"
-          />
+        <div class="fgroup">
+          <label>Status</label>
+          <div class="status-select">
+            <div class="status" [class.sel]="newProjectForm.get('status')?.value === 'progress'"
+              (click)="newProjectForm.patchValue({ status: 'progress' })">In progress</div>
+            <div class="status" [class.sel]="newProjectForm.get('status')?.value === 'accepted'"
+              (click)="newProjectForm.patchValue({ status: 'accepted' })">Accepted by client</div>
+            <div class="status" [class.sel]="newProjectForm.get('status')?.value === 'completed'"
+              (click)="newProjectForm.patchValue({ status: 'completed' })">Completed</div>
+            <div class="status" [class.sel]="newProjectForm.get('status')?.value === 'cancelled'"
+              (click)="newProjectForm.patchValue({ status: 'cancelled' })">Cancelled</div>
+            <div class="status" [class.sel]="newProjectForm.get('status')?.value === 'hold'"
+              (click)="newProjectForm.patchValue({ status: 'hold' })">On hold</div>
+          </div>
+        </div>
+        <div class="section-tag">Details</div>
+        <div class="fgroup">
+          <label>Description</label>
+          <textarea rows="3" formControlName="description"
+            placeholder="Scope, deliverables, key requirements…"></textarea>
         </div>
       </div>
+      <div class="premium-modal-foot">
+        <div class="foot-right">
+          <button type="button" class="btn btn-ghost" (click)="closeNewProjectForm()">Cancel</button>
+          <button type="submit" class="btn btn-verify" [disabled]="newProjectForm.invalid">Save project</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
-      <div class="form-actions">
-        <button type="button" class="cancel-btn" (click)="closeModal()">Cancel</button>
-        <button type="submit" class="submit-btn" [disabled]="!projectForm.valid">Create Project</button>
+<!-- ================= UPDATE PROGRESS FORM ================= -->
+<div class="premium-overlay" *ngIf="isUpdateProgressFormVisible" [class.show]="isUpdateProgressFormVisible">
+  <div class="premium-modal">
+    <div class="premium-modal-head">
+      <div>
+        <div class="tag" style="color:var(--sales); background:var(--sales-soft);">
+          <h3>● Update progress</h3>
+        </div>
+        <p>Logs a checkpoint against an existing project.</p>
+      </div>
+      <button class="premium-modal-close" (click)="closeUpdateProgressForm()">✕</button>
+    </div>
+    <form [formGroup]="updateProgressForm" (ngSubmit)="onSubmitUpdateProgress()">
+      <div class="premium-modal-body">
+        <div class="fgroup">
+          <label>Project</label>
+          <select formControlName="project">
+            <option *ngFor="let p of projects" [value]="p.name">{{ p.name }}</option>
+          </select>
+        </div>
+
+        <div class="section-tag">Progress</div>
+        <div class="fgroup">
+          <label>Updated progress</label>
+          <div class="progress-wrap">
+            <input type="range" formControlName="progress" min="0" max="100">
+            <span class="progress-num">{{ updateProgressForm.get('progress')?.value }}%</span>
+          </div>
+          <div class="before-after">
+            Previous: <b>40%</b> <span class="arrow">→</span> New: <b>{{ updateProgressForm.get('progress')?.value
+              }}%</b>
+            <span style="color:var(--verify)">
+              (+{{ updateProgressForm.get('progress')?.value - 40 >= 0 ? (updateProgressForm.get('progress')?.value -
+              40) : 0 }}%)
+            </span>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Priority</label>
+          <div class="pill-select">
+            <div class="pill" [class.sel]="updateProgressForm.get('priority')?.value === 'low'"
+              (click)="updateProgressForm.patchValue({ priority: 'low' })">Low</div>
+            <div class="pill" [class.sel]="updateProgressForm.get('priority')?.value === 'medium'"
+              (click)="updateProgressForm.patchValue({ priority: 'medium' })">Medium</div>
+            <div class="pill" [class.sel]="updateProgressForm.get('priority')?.value === 'high'"
+              (click)="updateProgressForm.patchValue({ priority: 'high' })">High</div>
+            <div class="pill" [class.sel]="updateProgressForm.get('priority')?.value === 'critical'"
+              (click)="updateProgressForm.patchValue({ priority: 'critical' })">Critical</div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Status</label>
+          <div class="status-select">
+            <div class="status" [class.sel]="updateProgressForm.get('status')?.value === 'progress'"
+              (click)="updateProgressForm.patchValue({ status: 'progress' })">In progress</div>
+            <div class="status" [class.sel]="updateProgressForm.get('status')?.value === 'accepted'"
+              (click)="updateProgressForm.patchValue({ status: 'accepted' })">Accepted by client</div>
+            <div class="status" [class.sel]="updateProgressForm.get('status')?.value === 'completed'"
+              (click)="updateProgressForm.patchValue({ status: 'completed' })">Completed</div>
+            <div class="status" [class.sel]="updateProgressForm.get('status')?.value === 'cancelled'"
+              (click)="updateProgressForm.patchValue({ status: 'cancelled' })">Cancelled</div>
+            <div class="status" [class.sel]="updateProgressForm.get('status')?.value === 'hold'"
+              (click)="updateProgressForm.patchValue({ status: 'hold' })">On hold</div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Notes</label>
+          <textarea rows="3" formControlName="notes" placeholder="What changed since the last update?"></textarea>
+        </div>
+      </div>
+      <div class="premium-modal-foot">
+        <div class="foot-right">
+          <button type="button" class="btn btn-ghost" (click)="closeUpdateProgressForm()">Cancel</button>
+          <button type="submit" class="btn btn-sales" [disabled]="updateProgressForm.invalid">Save update</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= LOG MEETING FORM ================= -->
+<div class="premium-overlay" *ngIf="isLogMeetingFormVisible" [class.show]="isLogMeetingFormVisible">
+  <div class="premium-modal">
+    <div class="premium-modal-head">
+      <div>
+        <div class="tag" style="color:var(--amber); background:var(--amber-soft);">
+          <h3>● Add meeting</h3>
+        </div>
+        <p>Log minutes, recordings, and shared files against a project.</p>
+      </div>
+      <button class="premium-modal-close" (click)="closeLogMeetingForm()">✕</button>
+    </div>
+    <form [formGroup]="logMeetingForm" (ngSubmit)="onSubmitLogMeeting()">
+      <div class="premium-modal-body">
+        <div class="fgroup">
+          <label>Meeting title</label>
+          <input formControlName="meetingTitle" placeholder="Sprint review – week 12">
+        </div>
+        <div class="fgroup">
+          <label>Related project</label>
+          <select formControlName="relatedProject">
+            <option *ngFor="let p of projects" [value]="p.name">{{ p.name }}</option>
+          </select>
+        </div>
+
+        <div class="frow">
+          <div class="fgroup">
+            <label>Date</label>
+            <input formControlName="date" type="text">
+          </div>
+          <div class="fgroup">
+            <label>Time</label>
+            <input formControlName="time" type="text" placeholder="e.g., 2:00 PM">
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Attendees</label>
+          <div class="member-picker">
+            <div class="member-chip" *ngFor="let attendee of logMeetingAttendees; let i = index">
+              <span class="avatar">{{ getInitials(attendee) }}</span>{{ attendee }}
+              <span class="rm" (click)="removeAttendee(i)">✕</span>
+            </div>
+            <input class="member-input" type="text" placeholder="Type a name, press Enter…" #attendeeInput
+              (keydown.enter)="$event.preventDefault(); addAttendee(attendeeInput.value); attendeeInput.value = ''"
+              (keydown.comma)="$event.preventDefault(); addAttendee(attendeeInput.value); attendeeInput.value = ''"
+              (keydown.backspace)="attendeeInput.value === '' && removeAttendee(logMeetingAttendees.length - 1)">
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label>Minutes of meeting (MOM)</label>
+          <textarea rows="4" formControlName="minutesOfMeeting"
+            placeholder="Key discussion points, decisions, action items…"></textarea>
+        </div>
+
+        <div class="section-tag">Recording &amp; files</div>
+        <div class="frow">
+          <div class="upload-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1v14M8 6l4-4 4 4" />
+              <rect x="4" y="16" width="16" height="6" rx="1" />
+            </svg>
+            Upload recording<small>MP3, MP4 up to 200MB</small>
+          </div>
+          <div class="upload-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7" />
+              <path d="M7 8l5-5 5 5M12 3v13" />
+            </svg>
+            Upload files<small>PDF, DOCX, XLSX — multiple allowed</small>
+          </div>
+        </div>
+        <div class="file-row">
+          <span class="name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            </svg>Q3_review_deck.pdf</span>
+          <span class="rm">✕</span>
+        </div>
+      </div>
+      <div class="premium-modal-foot">
+        <div class="foot-right">
+          <button type="button" class="btn btn-ghost" (click)="closeLogMeetingForm()">Cancel</button>
+          <button type="submit" class="btn btn-amber" [disabled]="logMeetingForm.invalid">Save meeting</button>
+        </div>
       </div>
     </form>
   </div>

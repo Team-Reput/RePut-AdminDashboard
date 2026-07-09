@@ -28,17 +28,19 @@ import { TechnicalDashboardComponent } from './technical-dashboard/technical-das
 import { OverviewDashboardComponent } from './overview-dashboard/overview-dashboard.component';
 import { SalesDashboardComponent } from './sales-dashboard/sales-dashboard.component';
 import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'admin/overview', pathMatch: 'full' },  // ← skip login
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
-  { path: 'login', component: LoginComponent },  // ← still exists if needed later
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
 
   {
     path: 'admin',
     component: AdminMainComponent,
-    canActivate: [authGuard],   // ← comment this out too, so guard doesn't block
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
       { path: 'overview', component: OverviewDashboardComponent },
@@ -47,5 +49,5 @@ export const routes: Routes = [
     ]
   },
 
-  { path: '**', redirectTo: 'admin/overview' }  // ← unknown URLs also go to dashboard
+  { path: '**', redirectTo: 'login' }
 ];
