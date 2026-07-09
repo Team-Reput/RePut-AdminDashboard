@@ -1,0 +1,97 @@
+<div class="panel">
+  <div class="panel-head">
+    <div>
+      <h3>📋 Projects Health Monitoring</h3>
+      <p>Track project performance and uptime</p>
+    </div>
+    <div class="panel-actions">
+      <select class="filter" [(ngModel)]="selectedFilter">
+        <option value="All">All statuses</option>
+        <option value="In progress">In progress</option>
+        <option value="On hold">On hold</option>
+        <option value="Completed">Completed</option>
+      </select>
+      <button class="btn btn-verify" (click)="onNewProject()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        New Project
+      </button>
+    </div>
+  </div>
+
+  <div class="project-list" *ngIf="sortedAndFilteredProjects.length > 0; else emptyState">
+    <div 
+      *ngFor="let project of sortedAndFilteredProjects" 
+      class="pcard" 
+      [class.child]="!!project.parentProject" 
+      [style.--pri]="getPriorityColor(project.priority)">
+      
+      <div class="connector" *ngIf="!!project.parentProject"></div>
+      
+      <div class="prow-top">
+        <div class="pname-block">
+          <h4>{{ project.name }}</h4>
+          <div class="client" *ngIf="!project.parentProject">
+            {{ project.client }} · Deadline {{ project.deadline }}
+          </div>
+          <div class="client" *ngIf="project.parentProject && project.deadline">
+            Deadline {{ project.deadline }}
+          </div>
+          <div class="subof" *ngIf="project.parentProject">
+            ↳ Sub-project of {{ project.parentProject }}
+          </div>
+        </div>
+        
+        <div class="tag-row">
+          <span class="tag" [ngClass]="'pri-' + project.priority">{{ project.priority.toUpperCase() }}</span>
+          <span class="tag" [ngClass]="'status-' + project.status">
+            {{ project.status === 'progress' ? 'IN PROGRESS' : (project.status === 'hold' ? 'ON HOLD' : project.status.toUpperCase()) }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="prow-bottom">
+        <div class="progress-block">
+          <div class="ptrack">
+            <div class="pfill" [style.width.%]="project.progress" [style.background]="getProgressGradient(project)"></div>
+          </div>
+          <span class="pnum">{{ project.progress }}%</span>
+        </div>
+        
+        <div class="team-stack">
+          <span class="avatar" *ngFor="let member of project.teamMembers | slice:0:2" [title]="member">
+            {{ getInitials(member) }}
+          </span>
+          <span class="avatar more" *ngIf="project.teamMembers.length > 2" [title]="project.teamMembers.slice(2).join(', ')">
+            +{{ project.teamMembers.length - 2 }}
+          </span>
+        </div>
+        
+        <span class="deadline" [ngClass]="getDeadlineInfo(project).class">
+          {{ getDeadlineInfo(project).text }}
+        </span>
+        
+        <div class="qactions">
+          <button class="qbtn sales" title="Update Progress" (click)="onUpdateProgress(project)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg>
+          </button>
+          <button class="qbtn amber" title="Log Meeting" (click)="onLogMeeting(project)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <p style="text-align: center; color: var(--ink-soft); padding: 20px; font-size: 13.5px;">
+      No projects match the selected filter.
+    </p>
+  </ng-template>
+
+  <p class="section-note">
+    {{ totalCount }} project{{ totalCount === 1 ? '' : 's' }} · 
+    {{ parentCount }} parent{{ parentCount === 1 ? '' : 's' }} · 
+    {{ subProjectCount }} sub-project{{ subProjectCount === 1 ? '' : 's' }} · 
+    updated live from Update Progress entries
+  </p>
+</div>

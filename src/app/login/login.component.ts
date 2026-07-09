@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -17,15 +17,30 @@ export class LoginComponent implements OnInit {
   showPassword = false;
   isLoading    = false;
   loginError   = '';
+  loginSuccess = '';
   currentYear  = new Date().getFullYear();
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    // If already logged in, redirect to dashboard
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/admin/overview']);
+      return;
+    }
+
+    // Check for success message from registration
+    this.route.queryParams.subscribe(params => {
+      if (params['registered'] === 'true') {
+        this.loginSuccess = 'Registration successful! Please sign in.';
+      }
+    });
+
     this.loginForm = this.fb.group({
       email: [
         '',
@@ -58,7 +73,7 @@ export class LoginComponent implements OnInit {
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -66,26 +81,24 @@ export class LoginComponent implements OnInit {
 
     this.isLoading = true;
     this.loginError = '';
+    this.loginSuccess = ''; // Clear success banner if they click submit again
 
-    try {
-      const { email, password } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-      // simulate a short delay so the spinner is visible
-      await new Promise(r => setTimeout(r, 600));
-
-      const success = this.authService.login(email, password);
-
-      if (success) {
-        this.router.navigate(['/admin/overview']);
-      } else {
-        this.loginError = 'Invalid email or password.';
-      }
-
-    } catch (err: any) {
-      this.loginError = err?.error?.message ?? 'Invalid email or password.';
-    } finally {
-      this.isLoading = false;
-    }
+    this.authService.login(email, password).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res.success) {
+          this.router.navigate(['/admin/overview']);
+        } else {
+          this.loginError = res.message || 'Login failed.';
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.loginError = err?.message || 'Something went wrong. Please try again.';
+      },
+    });
   }
 
   // ── SSO ───────────────────────────────────────────────────────────────────
