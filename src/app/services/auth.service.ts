@@ -15,7 +15,7 @@ export interface LoginResponse {
     full_name: string;
     email: string;
     role: string;
-    session_id: number;
+    session_id: string;
   };
 }
 
@@ -36,7 +36,7 @@ export interface UserInfo {
   full_name: string;
   email: string;
   role: string;
-  session_id: number;
+  session_id: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -98,6 +98,14 @@ export class AuthService {
    * Clear all auth data and redirect to /login
    */
   logout(): void {
+    const user = this.getUser();
+    if (user && user.session_id) {
+      this.http.post(`${this.apiUrl}/auth/logout`, { session_id: user.session_id }).subscribe({
+        next: () => console.log('Session successfully removed from database'),
+        error: (err) => console.error('Failed to remove session from database', err)
+      });
+    }
+
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('isLoggedIn');
@@ -149,6 +157,17 @@ export class AuthService {
    */
   getUserRole(): string {
     return this.getUser()?.role || '';
+  }
+
+  /**
+   * POST /api/auth/refresh
+   * Refreshes the access token using the session_id
+   */
+  refreshToken(sessionId: string): Observable<{ success: boolean; token: string }> {
+    return this.http.post<{ success: boolean; token: string }>(
+      `${this.apiUrl}/auth/refresh`,
+      { session_id: sessionId }
+    );
   }
 
   /**
