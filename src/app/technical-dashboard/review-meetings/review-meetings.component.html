@@ -31,7 +31,11 @@
         <div class="mtime"><b>{{ meeting.date }}</b>{{ meeting.time }}</div>
       </div>
       
-      <div class="mom-preview" [class.expanded]="expandedMeetingId === meeting.id">
+      <div class="mom-preview" 
+           [class.expanded]="expandedMeetingId === meeting.id?.toString()" 
+           (click)="toggleExpand(meeting.id?.toString())"
+           style="cursor: pointer;"
+           title="Click to expand/collapse full MOM">
         <b>MOM / Decisions:</b> {{ meeting.minutesOfMeeting }}
       </div>
       
@@ -59,10 +63,12 @@
         </div>
         
         <div class="qactions">
-          <button class="qbtn ghost" title="View full MOM" (click)="toggleExpand(meeting.id)" [class.active]="expandedMeetingId === meeting.id">
+          <button class="qbtn ghost" title="View full MOM" (click)="toggleExpand(meeting.id?.toString())" [class.active]="expandedMeetingId === meeting.id?.toString()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg>
           </button>
-          <button class="qbtn ghost" title="More"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg></button>
+          <button class="qbtn ghost" title="View Full Details" (click)="openMeetingDetails(meeting)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -76,4 +82,79 @@
   </ng-template>
   
   <p class="section-note">{{ meetings.length }} meeting{{ meetings.length === 1 ? '' : 's' }} logged · {{ meetingsWithRecordings }} with recording{{ meetingsWithRecordings === 1 ? '' : 's' }} · sorted by most recent</p>
+
+  <!-- ================= MEETING DETAILS MODAL ================= -->
+  <div class="premium-overlay" [class.show]="!!selectedMeetingForDetails" (click)="closeMeetingDetails()">
+    <div class="premium-modal" (click)="$event.stopPropagation()" style="width: 550px;">
+      <div class="premium-modal-head">
+        <div>
+          <div class="tag" style="color:var(--amber); background:var(--amber-soft); border-radius: 20px; padding: 3px 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+            ● Meeting Details
+          </div>
+          <h3 style="margin: 0; font-family: var(--display); font-size: 18px; font-weight: 600;">Meeting Information</h3>
+        </div>
+        <button class="premium-modal-close" (click)="closeMeetingDetails()" style="background: none; border: none; font-size: 16px; cursor: pointer; color: var(--ink-soft);">✕</button>
+      </div>
+      
+      <div class="premium-modal-body" *ngIf="selectedMeetingForDetails" style="padding: 22px 26px; max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;">
+        <div class="fgroup">
+          <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Meeting Title</label>
+          <div class="detail-text highlighted">{{ selectedMeetingForDetails.title }}</div>
+        </div>
+
+        <div class="frow" style="display: flex; gap: 16px;">
+          <div class="fgroup" style="flex: 1;">
+            <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Related Project</label>
+            <div class="detail-text">
+              <span class="proj-tag-detail">{{ selectedMeetingForDetails.project }}</span>
+            </div>
+          </div>
+          <div class="fgroup" style="flex: 1;">
+            <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Date &amp; Time</label>
+            <div class="detail-text">
+              <strong>{{ selectedMeetingForDetails.date }}</strong>&nbsp;at {{ selectedMeetingForDetails.time }}
+            </div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Attendees ({{ selectedMeetingForDetails.attendees.length }})</label>
+          <div class="attendees-detail-grid">
+            <div class="attendee-detail-chip" *ngFor="let attendee of selectedMeetingForDetails.attendees">
+              <span class="avatar-small">{{ getInitials(attendee) }}</span>
+              <span class="name-text" style="font-size: 12.5px; color: var(--ink); font-weight: 500;">{{ attendee }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="frow" *ngIf="selectedMeetingForDetails.recordingLength || selectedMeetingForDetails.filesCount" style="display: flex; gap: 16px;">
+          <div class="fgroup" *ngIf="selectedMeetingForDetails.recordingLength" style="flex: 1;">
+            <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Recording Length</label>
+            <div class="detail-text text-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-small"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>
+              {{ selectedMeetingForDetails.recordingLength }}
+            </div>
+          </div>
+          <div class="fgroup" *ngIf="selectedMeetingForDetails.filesCount" style="flex: 1;">
+            <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Attached Documents</label>
+            <div class="detail-text text-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-small"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+              {{ selectedMeetingForDetails.filesCount }} document{{ selectedMeetingForDetails.filesCount === 1 ? '' : 's' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label style="display: block; font-size: 11.5px; font-family: var(--mono); color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Minutes of Meeting (MOM)</label>
+          <div class="mom-full-display">{{ selectedMeetingForDetails.minutesOfMeeting }}</div>
+        </div>
+      </div>
+      
+      <div class="premium-modal-foot" style="padding: 16px 26px 20px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; background: #fff; border-radius: 0 0 16px 16px;">
+        <div class="foot-right">
+          <button class="btn btn-ghost" (click)="closeMeetingDetails()" style="font-family: var(--body); font-weight: 600; font-size: 13px; border-radius: 9px; padding: 9px 16px; border: 1px solid var(--line); background: #fff; color: var(--ink-soft); cursor: pointer; transition: all 0.2s;">Close Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

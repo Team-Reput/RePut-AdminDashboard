@@ -11,95 +11,144 @@
         <p>Complete system overview and performance metrics</p>
       </div>
 
-      <!-- Technical Dashboard Section -->
-      <div class="dashboard-section">
-        <div class="section-title">
-          <h2>⚙️ Technical Dashboard</h2>
-          <a routerLink="/admin/technical-dashboard" class="view-details-link">View Details →</a>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card blue-border">
-            <div class="stat-header">
-              <span class="stat-label">Active Users</span>
-              <span class="stat-icon blue">👥</span>
-            </div>
-            <div class="stat-value">{{ technicalStats.activeUsers }}</div>
-            <div class="stat-subtitle">Currently online</div>
-          </div>
+      <app-loading *ngIf="isLoading"></app-loading>
 
-          <div class="stat-card cyan-border">
-            <div class="stat-header">
-              <span class="stat-label">API Hits</span>
-              <span class="stat-icon cyan">🎯</span>
-            </div>
-            <div class="stat-value">{{ technicalStats.apiHits | number }}</div>
-            <div class="stat-subtitle">Total requests</div>
+      <ng-container *ngIf="!isLoading">
+        <!-- Technical Dashboard Section -->
+        <div class="dashboard-section">
+          <div class="section-title">
+            <h2>⚙️ Technical Dashboard</h2>
+            <a routerLink="/admin/technical-dashboard" class="view-details-link">View Details →</a>
           </div>
-
-          <div class="stat-card purple-border">
-            <div class="stat-header">
-              <span class="stat-label">API Latency</span>
-              <span class="stat-icon purple">📈</span>
+          <div class="stats-grid">
+            <div class="stat-card blue-border">
+              <div class="stat-header">
+                <span class="stat-label">Active Users</span>
+                <span class="stat-icon blue">👥</span>
+              </div>
+              <div class="stat-value">{{ technicalStats.activeUsers }}</div>
+              <div class="stat-subtitle">Currently online</div>
             </div>
-            <div class="stat-value">{{ technicalStats.apiLatency }}<span class="unit">ms</span></div>
-            <div class="stat-subtitle">Average response</div>
-          </div>
 
-          <div class="stat-card green-border">
-            <div class="stat-header">
-              <span class="stat-label">Network Traffic</span>
-              <span class="stat-icon green">🌐</span>
+            <div class="stat-card cyan-border">
+              <div class="stat-header">
+                <span class="stat-label">API Hits</span>
+                <span class="stat-icon cyan">🎯</span>
+              </div>
+              <div class="stat-value">{{ technicalStats.apiHits | number }}</div>
+              <div class="stat-subtitle">Total requests</div>
             </div>
-            <div class="stat-value">{{ technicalStats.networkTraffic }}<span class="unit">Mb/s</span></div>
-            <div class="stat-subtitle">Current throughput</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Sales Dashboard Section -->
-      <div class="dashboard-section">
-        <div class="section-title">
-          <h2>💼 Sales Dashboard</h2>
-          <a routerLink="/admin/sales-dashboard" class="view-details-link">View Details →</a>
-        </div>
-        <div class="stats-grid">
-          <div class="stat-card purple-border">
-            <div class="stat-header">
-              <span class="stat-label">Total Customers</span>
-              <span class="stat-icon purple">👥</span>
+            <div class="stat-card purple-border">
+              <div class="stat-header">
+                <span class="stat-label">API Latency</span>
+                <span class="stat-icon purple">📈</span>
+              </div>
+              <div class="stat-value">{{ technicalStats.apiLatency }}<span class="unit">ms</span></div>
+              <div class="stat-subtitle">Average response</div>
             </div>
-            <div class="stat-value">{{ salesStats.totalCustomers }}</div>
-            <div class="stat-subtitle">Onboarded clients</div>
-          </div>
 
-          <div class="stat-card cyan-border">
-            <div class="stat-header">
-              <span class="stat-label">Total Offers</span>
-              <span class="stat-icon cyan">📄</span>
+            <div class="stat-card green-border">
+              <div class="stat-header">
+                <span class="stat-label">Network Traffic</span>
+                <span class="stat-icon green">🌐</span>
+              </div>
+              <div class="stat-value">{{ technicalStats.networkTraffic }}<span class="unit">Mb/s</span></div>
+              <div class="stat-subtitle">Current throughput</div>
             </div>
-            <div class="stat-value">{{ salesStats.totalOffers }}</div>
-            <div class="stat-subtitle">Offers sent</div>
-          </div>
-
-          <div class="stat-card green-border">
-            <div class="stat-header">
-              <span class="stat-label">Expected Revenue</span>
-              <span class="stat-icon green">💵</span>
-            </div>
-            <div class="stat-value">${{ salesStats.expectedRevenue | number }}</div>
-            <div class="stat-subtitle">Pipeline value</div>
-          </div>
-
-          <div class="stat-card red-border">
-            <div class="stat-header">
-              <span class="stat-label">Churn</span>
-              <span class="stat-icon red">⏰</span>
-            </div>
-            <div class="stat-value">{{ salesStats.churn }}</div>
-            <div class="stat-subtitle">Lost deals</div>
           </div>
         </div>
-      </div>
+
+        <!-- Sales Dashboard Section -->
+        <div class="dashboard-section">
+          <div class="section-title">
+            <h2>💼 Sales Dashboard</h2>
+            <a routerLink="/admin/sales-dashboard" class="view-details-link">View Details →</a>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card purple-border">
+              <div class="stat-header">
+                <span class="stat-label">Total Customers</span>
+                <span class="stat-icon purple">👥</span>
+              </div>
+              <div class="stat-value">{{ salesStats.totalCustomers }}</div>
+              <div class="stat-subtitle">Onboarded clients</div>
+            </div>
+
+            <div class="stat-card cyan-border">
+              <div class="stat-header">
+                <span class="stat-label">Total Offers</span>
+                <span class="stat-icon cyan">📄</span>
+              </div>
+              <div class="stat-value">{{ salesStats.totalOffers }}</div>
+              <div class="stat-subtitle">Offers sent</div>
+            </div>
+
+            <div class="stat-card green-border">
+              <div class="stat-header">
+                <span class="stat-label">Expected Revenue</span>
+                <span class="stat-icon green">💵</span>
+              </div>
+              <div class="stat-value">${{ salesStats.expectedRevenue | number }}</div>
+              <div class="stat-subtitle">Pipeline value</div>
+            </div>
+
+            <div class="stat-card red-border">
+              <div class="stat-header">
+                <span class="stat-label">Churn</span>
+                <span class="stat-icon red">⏰</span>
+              </div>
+              <div class="stat-value">{{ salesStats.churn }}</div>
+              <div class="stat-subtitle">Lost deals</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Dashboard Section -->
+        <div class="dashboard-section" style="margin-top: 32px;">
+          <div class="section-title">
+            <h2>💰 Financial Dashboard</h2>
+            <a routerLink="/admin/sales-dashboard" class="view-details-link">View Details →</a>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card purple-border">
+              <div class="stat-header">
+                <span class="stat-label">Total Revenue</span>
+                <span class="stat-icon purple">💰</span>
+              </div>
+              <div class="stat-value">${{ financialStats.totalRevenue | number }}</div>
+              <div class="stat-subtitle">All periods aggregated</div>
+            </div>
+
+            <div class="stat-card cyan-border">
+              <div class="stat-header">
+                <span class="stat-label">SaaS Revenue</span>
+                <span class="stat-icon cyan">☁️</span>
+              </div>
+              <div class="stat-value">${{ financialStats.saasRevenue | number }}</div>
+              <div class="stat-subtitle">SaaS software subscriptions</div>
+            </div>
+
+            <div class="stat-card red-border">
+              <div class="stat-header">
+                <span class="stat-label">Total Expenses</span>
+                <span class="stat-icon red">💸</span>
+              </div>
+              <div class="stat-value">${{ financialStats.totalExpenses | number }}</div>
+              <div class="stat-subtitle">Marketing, Travel, Admin</div>
+            </div>
+
+            <div class="stat-card green-border">
+              <div class="stat-header">
+                <span class="stat-label">Net Profit</span>
+                <span class="stat-icon green">📈</span>
+              </div>
+              <div class="stat-value" [style.color]="financialStats.netProfit >= 0 ? '#1f2937' : '#ef4444'">${{ financialStats.netProfit | number }}</div>
+              <div class="stat-subtitle">Revenue minus expenses</div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
     </div>
   </main>
 </div>

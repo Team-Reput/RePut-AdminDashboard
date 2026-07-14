@@ -2,122 +2,154 @@
 
   <!-- Main Content -->
   <div class="main-content">
-    
+
 
     <!-- Dashboard Content -->
     <div class="content">
-      <div class="page-header">
+      <div class="page-header"
+        style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 16px;">
         <div class="page-title">
-          <h1>Sales Dashboard</h1>
-          <p>Team performance overview</p>
+          <h1>{{ dashboardMode === 'sales' ? 'Sales Dashboard' : 'Financial Dashboard' }}</h1>
+          <p>{{ dashboardMode === 'sales' ? 'Team performance overview' : 'Financial performance overview' }}</p>
         </div>
-        <div class="header-actions">
-          <button class="btn-premium btn-premium-verify" (click)="openFinancialForm()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            Financial Entry
-          </button>
-          <button class="btn-premium btn-premium-sales" (click)="openSalesForm()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg>
-            Add Sales Entry
-          </button>
-        </div>
-      </div>
-
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="stat-card purple-border">
-          <div class="stat-header">
-            <span class="stat-label">Total Customers</span>
-            <span class="stat-icon purple">👥</span>
-          </div>
-          <div class="stat-value">{{ salesStats.totalCustomers }}</div>
-          <div class="stat-subtitle">Onboarded clients</div>
-        </div>
-
-        <div class="stat-card cyan-border">
-          <div class="stat-header">
-            <span class="stat-label">Total Offers</span>
-            <span class="stat-icon cyan">📄</span>
-          </div>
-          <div class="stat-value">{{ salesStats.totalOffers }}</div>
-          <div class="stat-subtitle">Offers sent</div>
-        </div>
-
-        <div class="stat-card green-border">
-          <div class="stat-header">
-            <span class="stat-label">Expected Revenue</span>
-            <span class="stat-icon green">💵</span>
-          </div>
-          <div class="stat-value">${{ salesStats.expectedRevenue | number }}</div>
-          <div class="stat-subtitle">Pipeline value</div>
-        </div>
-
-        <div class="stat-card red-border">
-          <div class="stat-header">
-            <span class="stat-label">Churn</span>
-            <span class="stat-icon red">⏰</span>
-          </div>
-          <div class="stat-value">{{ salesStats.churn }}</div>
-          <div class="stat-subtitle">Lost deals</div>
-        </div>
-      </div>
-
-      <!-- Charts Section -->
-      <div class="charts-grid">
-        <div class="chart-card large">
-          <div class="chart-header">
-            <span class="chart-icon">📈</span>
-            <h3>Revenue & Customer Trends</h3>
-          </div>
-          <p class="chart-subtitle">Expected revenue and new customers over time</p>
-          <div class="chart-placeholder">
-            <!-- <svg width="100%" height="220" viewBox="0 0 600 220">
-              <line x1="40" y1="20" x2="40" y2="180" stroke="#e5e7eb" stroke-width="1"/>
-              <line x1="40" y1="180" x2="560" y2="180" stroke="#e5e7eb" stroke-width="1"/>
-              
-              <circle cx="150" cy="100" r="6" fill="#06b6d4"/>
-              <circle cx="300" cy="80" r="6" fill="#06b6d4"/>
-              <circle cx="450" cy="120" r="6" fill="#06b6d4"/>
-              
-              <circle cx="150" cy="140" r="6" fill="#8b5cf6"/>
-              <circle cx="300" cy="110" r="6" fill="#8b5cf6"/>
-              <circle cx="450" cy="90" r="6" fill="#8b5cf6"/>
-            </svg> -->
-
-            <highcharts-chart
-              [Highcharts]="Highcharts"
-              [options]="revenueCustomerTrendsChartOptions"
-              style="width: 100%; height: 300px; display: block;">
-            </highcharts-chart>
-
-          </div>
-          <!-- <div class="chart-legend">
-            <span class="legend-item">
-              <span class="legend-color cyan"></span>
-              New Customers
-            </span>
-            <span class="legend-item">
-              <span class="legend-color purple"></span>
-              Revenue ($)
-            </span>
-          </div> -->
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-header">
-            <span class="chart-icon">📊</span>
-            <h3>Pipeline Status Breakdown</h3>
-          </div>
-          <p class="chart-subtitle">Distribution of leads by status</p>
-          <div class="chart-placeholder pie">
-            <highcharts-chart
-              [Highcharts]="Highcharts"
-              [options]="pipelineStatusBreakdownChartOptions"
-              style="width: 100%; height: 300px; display: block;">
-            </highcharts-chart>
+        <div class="dashboard-toggle-header">
+          <div class="toggle-group">
+            <button class="toggle-btn toggle-sales" [class.active]="dashboardMode === 'sales'"
+              (click)="setDashboardMode('sales')">
+              Sales Dashboard
+            </button>
+            <button class="toggle-btn toggle-financial" [class.active]="dashboardMode === 'financial'"
+              (click)="setDashboardMode('financial')">
+              Financial Dashboard
+            </button>
           </div>
         </div>
       </div>
+
+      <app-loading *ngIf="isLoading"></app-loading>
+
+      <ng-container *ngIf="!isLoading">
+        <!-- Stats Cards (Sales) -->
+        <div class="stats-grid" *ngIf="dashboardMode === 'sales'">
+          <div class="stat-card purple-border">
+            <div class="stat-header">
+              <span class="stat-label">Total Customers</span>
+              <span class="stat-icon purple">👥</span>
+            </div>
+            <div class="stat-value">{{ salesStats.totalCustomers }}</div>
+            <div class="stat-subtitle">Onboarded clients</div>
+          </div>
+
+          <div class="stat-card cyan-border">
+            <div class="stat-header">
+              <span class="stat-label">Total Offers</span>
+              <span class="stat-icon cyan">📄</span>
+            </div>
+            <div class="stat-value">{{ salesStats.totalOffers }}</div>
+            <div class="stat-subtitle">Offers sent</div>
+          </div>
+
+          <div class="stat-card green-border">
+            <div class="stat-header">
+              <span class="stat-label">Expected Revenue</span>
+              <span class="stat-icon green">💵</span>
+            </div>
+            <div class="stat-value">${{ salesStats.expectedRevenue | number }}</div>
+            <div class="stat-subtitle">Pipeline value</div>
+          </div>
+
+          <div class="stat-card red-border">
+            <div class="stat-header">
+              <span class="stat-label">Churn</span>
+              <span class="stat-icon red">⏰</span>
+            </div>
+            <div class="stat-value">{{ salesStats.churn }}</div>
+            <div class="stat-subtitle">Lost deals</div>
+          </div>
+        </div>
+
+        <!-- Stats Cards (Financial) -->
+        <div class="stats-grid" *ngIf="dashboardMode === 'financial'">
+          <div class="stat-card purple-border">
+            <div class="stat-header">
+              <span class="stat-label">Total Revenue</span>
+              <span class="stat-icon purple">💰</span>
+            </div>
+            <div class="stat-value">${{ financialStats.totalRevenue | number }}</div>
+            <div class="stat-subtitle">All periods aggregated</div>
+          </div>
+
+          <div class="stat-card cyan-border">
+            <div class="stat-header">
+              <span class="stat-label">SaaS Revenue</span>
+              <span class="stat-icon cyan">☁️</span>
+            </div>
+            <div class="stat-value">${{ financialStats.saasRevenue | number }}</div>
+            <div class="stat-subtitle">SaaS software subscriptions</div>
+          </div>
+
+          <div class="stat-card red-border">
+            <div class="stat-header">
+              <span class="stat-label">Total Expenses</span>
+              <span class="stat-icon red">💸</span>
+            </div>
+            <div class="stat-value">${{ financialStats.totalExpenses | number }}</div>
+            <div class="stat-subtitle">Marketing, Travel, Admin</div>
+          </div>
+
+          <div class="stat-card green-border">
+            <div class="stat-header">
+              <span class="stat-label">Net Profit</span>
+              <span class="stat-icon green">📈</span>
+            </div>
+            <div class="stat-value" [style.color]="financialStats.netProfit >= 0 ? '#1f2937' : '#ef4444'">${{
+              financialStats.netProfit | number }}</div>
+            <div class="stat-subtitle">Revenue minus expenses</div>
+          </div>
+        </div>
+
+        <!-- Charts Section (Sales) -->
+        <div class="charts-grid" *ngIf="dashboardMode === 'sales'">
+          <div class="chart-card large">
+            <div class="chart-header">
+              <h3>Revenue & Customer Trends</h3>
+            </div>
+            <div class="chart-placeholder">
+              <highcharts-chart [Highcharts]="Highcharts" [options]="revenueCustomerTrendsChartOptions"
+                style="width: 100%; height: 300px; display: block;">
+              </highcharts-chart>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>Pipeline Status Breakdown</h3>
+            </div>
+            <div class="chart-placeholder pie">
+              <highcharts-chart [Highcharts]="Highcharts" [options]="pipelineStatusBreakdownChartOptions"
+                style="width: 100%; height: 300px; display: block;">
+              </highcharts-chart>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Section (Financial) -->
+        <app-financial-charts *ngIf="dashboardMode === 'financial'" [entries]="financialEntries">
+        </app-financial-charts>
+
+
+        <!-- ================= LOGS HISTORY TABLES SECTION ================= -->
+        <div class="logs-section-container" style="margin-top: 24px;">
+          <!-- Sales Entries Table Component -->
+          <app-saleslog-table *ngIf="dashboardMode === 'sales'" [entries]="salesEntries" (onAddEntry)="openSalesForm()">
+          </app-saleslog-table>
+
+          <!-- Financial Entries Table Component -->
+          <app-financiallog-table *ngIf="dashboardMode === 'financial'" [entries]="financialEntries"
+            (onAddEntry)="openFinancialForm()">
+          </app-financiallog-table>
+        </div>
+      </ng-container>
     </div>
   </div>
 </div>
@@ -126,7 +158,9 @@
   <div class="premium-modal">
     <div class="premium-modal-head">
       <div>
-        <div class="tag"><h3>● Financial Entry</h3></div>
+        <div class="tag">
+          <h3>● Financial Entry</h3>
+        </div>
         <p>Record monthly revenue, costs, and expenses.</p>
       </div>
       <button class="premium-modal-close" (click)="closeFinancialForm()">✕</button>
@@ -136,7 +170,21 @@
         <div class="frow">
           <div class="fgroup">
             <label for="month">Month</label>
-            <input id="month" formControlName="month" type="text" placeholder="Enter month" />
+            <select id="month" formControlName="month">
+              <option value="" disabled>Select month</option>
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October">October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
           </div>
           <div class="fgroup">
             <label for="year">Year</label>
@@ -204,7 +252,9 @@
   <div class="premium-modal">
     <div class="premium-modal-head">
       <div>
-        <div class="tag" style="color:var(--sales); background:var(--sales-soft);"><h3>● Sales Entry</h3></div>
+        <div class="tag" style="color:var(--sales); background:var(--sales-soft);">
+          <h3>● Sales Entry</h3>
+        </div>
         <p>Log sales metrics, pipeline updates, and deal progress.</p>
       </div>
       <button class="premium-modal-close" (click)="closeModal()">✕</button>
@@ -253,12 +303,14 @@
 
         <div class="fgroup">
           <label for="pipelineProgress">Pipeline Progress</label>
-          <textarea id="pipelineProgress" formControlName="pipelineProgress" placeholder="e.g., 3 deals moved to final stage" rows="2"></textarea>
+          <textarea id="pipelineProgress" formControlName="pipelineProgress"
+            placeholder="e.g., 3 deals moved to final stage" rows="2"></textarea>
         </div>
 
         <div class="fgroup">
           <label for="obstaclesBlockers">Obstacles/Blockers</label>
-          <textarea id="obstaclesBlockers" formControlName="obstaclesBlockers" placeholder="Any challenges or blockers faced..." rows="3"></textarea>
+          <textarea id="obstaclesBlockers" formControlName="obstaclesBlockers"
+            placeholder="Any challenges or blockers faced..." rows="3"></textarea>
         </div>
       </div>
       <div class="premium-modal-foot">

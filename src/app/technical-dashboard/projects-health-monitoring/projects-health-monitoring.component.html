@@ -5,11 +5,13 @@
       <p>Track project performance and uptime</p>
     </div>
     <div class="panel-actions">
-      <select class="filter" [(ngModel)]="selectedFilter">
+      <select class="filter" [(ngModel)]="selectedFilter" (change)="onFilterChange()">
         <option value="All">All statuses</option>
         <option value="In progress">In progress</option>
-        <option value="On hold">On hold</option>
+        <option value="Accepted by client">Accepted by client</option>
         <option value="Completed">Completed</option>
+        <option value="Cancelled">Cancelled</option>
+        <option value="On hold">On hold</option>
       </select>
       <button class="btn btn-verify" (click)="onNewProject()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -29,7 +31,19 @@
       
       <div class="prow-top">
         <div class="pname-block">
-          <h4>{{ project.name }}</h4>
+          <div class="title-with-toggle">
+            <h4>{{ project.name }}</h4>
+            <button 
+              *ngIf="project.description"
+              class="desc-toggle-btn"
+              [class.expanded]="isExpanded(project.name)"
+              (click)="toggleDescription(project.name)"
+              title="Show project description">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
           <div class="client" *ngIf="!project.parentProject">
             {{ project.client }} · Deadline {{ project.deadline }}
           </div>
@@ -47,6 +61,12 @@
             {{ project.status === 'progress' ? 'IN PROGRESS' : (project.status === 'hold' ? 'ON HOLD' : project.status.toUpperCase()) }}
           </span>
         </div>
+      </div>
+
+      <div 
+        class="project-desc-drawer" 
+        *ngIf="project.description && isExpanded(project.name)">
+        {{ project.description }}
       </div>
       
       <div class="prow-bottom">

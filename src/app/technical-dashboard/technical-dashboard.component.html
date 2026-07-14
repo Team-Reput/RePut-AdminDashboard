@@ -13,96 +13,96 @@
         <p>Engineering monitoring & performance analytics</p>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="stat-card purple-border">
-          <div class="stat-header">
-            <span class="stat-label">Active Users</span>
-            <span class="stat-icon purple">👥</span>
-          </div>
-          <div class="stat-value">{{ technicalStats.activeUsers }}</div>
-          <div class="stat-subtitle">+4.5%</div>
-        </div>
+      <app-loading *ngIf="isLoading"></app-loading>
 
-        <div class="stat-card cyan-border">
-          <div class="stat-header">
-            <span class="stat-label">API Hits</span>
-            <span class="stat-icon cyan">🎯</span>
+      <ng-container *ngIf="!isLoading">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card purple-border">
+            <div class="stat-header">
+              <span class="stat-label">Active Users</span>
+              <span class="stat-icon purple">👥</span>
+            </div>
+            <div class="stat-value">{{ technicalStats.activeUsers }}</div>
+            <div class="stat-subtitle">+4.5%</div>
           </div>
-          <div class="stat-value">{{ technicalStats.apiHits }}</div>
-          <div class="stat-subtitle">86.1% success</div>
-        </div>
 
-        <div class="stat-card green-border">
-          <div class="stat-header">
-            <span class="stat-label">API Latency</span>
-            <span class="stat-icon green">📈</span>
+          <div class="stat-card cyan-border">
+            <div class="stat-header">
+              <span class="stat-label">API Hits</span>
+              <span class="stat-icon cyan">🎯</span>
+            </div>
+            <div class="stat-value">{{ technicalStats.apiHits }}</div>
+            <div class="stat-subtitle">86.1% success</div>
           </div>
-          <div class="stat-value">{{ technicalStats.apiLatency }}<span class="unit">ms</span></div>
-          <div class="stat-subtitle">Average response</div>
-        </div>
 
-        <div class="stat-card yellow-border">
-          <div class="stat-header">
-            <span class="stat-label">Network Traffic</span>
-            <span class="stat-icon yellow">🚴</span>
+          <div class="stat-card green-border">
+            <div class="stat-header">
+              <span class="stat-label">API Latency</span>
+              <span class="stat-icon green">📈</span>
+            </div>
+            <div class="stat-value">{{ technicalStats.apiLatency }}<span class="unit">ms</span></div>
+            <div class="stat-subtitle">Under SLA (50ms)</div>
           </div>
-          <div class="stat-value positive">+{{ technicalStats.networkTrafficUp }}</div>
-          <div class="stat-value negative">-{{ technicalStats.networkTrafficDown }}</div>
-          <div class="stat-subtitle">Mb/s</div>
-        </div>
-      </div>
 
-      <!-- Charts Section -->
-      <div class="charts-grid">
-        <div class="chart-card large">
-          <div class="chart-header">
-            <span class="chart-icon">📈</span>
-            <h3>API Performance Trends</h3>
-          </div>
-          <p class="chart-subtitle">Schedule rate and latency over time</p>
-          <div class="chart-placeholder">
-            <highcharts-chart [Highcharts]="Highcharts" [options]="loanDisbursementChartOptions"
-              style="width: 100%; height: 300px; display: block;">
-            </highcharts-chart>
-          </div>
-          <div class="chart-legend">
-            <span class="legend-item">
-              <span class="legend-color cyan"></span>
-              Latency (ms)
-            </span>
-            <span class="legend-item">
-              <span class="legend-color purple"></span>
-              Success Rate (%)
-            </span>
+          <div class="stat-card blue-border">
+            <div class="stat-header">
+              <span class="stat-label">Network Traffic</span>
+              <span class="stat-icon blue">🌐</span>
+            </div>
+            <div class="stat-value">
+              <div style="font-size: 18px; margin-bottom: 2px;">
+                <span style="color:#6b7280; font-size: 11px;">UP:</span> {{ technicalStats.networkTrafficUp }} <span
+                  class="unit">Mb/s</span>
+              </div>
+              <div style="font-size: 18px;">
+                <span style="color:#6b7280; font-size: 11px;">DOWN:</span> {{ technicalStats.networkTrafficDown }} <span
+                  class="unit">Mb/s</span>
+              </div>
+            </div>
+            <div class="stat-subtitle">Current throughput</div>
           </div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header">
-            <span class="chart-icon">📊</span>
-            <h3>Data Processing by Scope</h3>
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <div class="chart-card large">
+            <div class="chart-header">
+              <span class="chart-icon">📈</span>
+              <h3>System Latency & Success Trends</h3>
+            </div>
+            <p class="chart-subtitle">Expected values against performance constraints</p>
+            <div class="chart-placeholder">
+              <highcharts-chart [Highcharts]="Highcharts" [options]="loanDisbursementChartOptions"
+                style="width: 100%; height: 300px; display: block;">
+              </highcharts-chart>
+            </div>
           </div>
-          <p class="chart-subtitle">Maximum data processed categorization</p>
-          <div class="chart-placeholder pie">
-            <highcharts-chart [Highcharts]="Highcharts" [options]="pieChartOptions"
-              style="width: 100%; height: 300px; display: block;">
-            </highcharts-chart>
+
+          <div class="chart-card">
+            <div class="chart-header">
+              <span class="chart-icon">📊</span>
+              <h3>Data Processing by Scope</h3>
+            </div>
+            <p class="chart-subtitle">Maximum data processed categorization</p>
+            <div class="chart-placeholder pie">
+              <highcharts-chart [Highcharts]="Highcharts" [options]="pieChartOptions"
+                style="width: 100%; height: 300px; display: block;">
+              </highcharts-chart>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Projects Section -->
-      <app-projects-health-monitoring [projects]="projects" (newProject)="openNewProjectForm()"
-        (updateProgress)="openUpdateProgressForProject($event)" (logMeeting)="openLogMeetingForProject($event)">
-      </app-projects-health-monitoring>
+        <!-- Projects Section -->
+        <app-projects-health-monitoring [projects]="projects" (newProject)="openNewProjectForm()"
+          (updateProgress)="openUpdateProgressForProject($event)" (logMeeting)="openLogMeetingForProject($event)"
+          (filterChanged)="onFilterChanged($event)">
+        </app-projects-health-monitoring>
 
-      <!-- Review Meetings Section -->
-      <app-review-meetings
-        [meetings]="meetings"
-        [projects]="projects"
-        (logMeeting)="openLogMeetingForm()">
-      </app-review-meetings>
+        <!-- Review Meetings Section -->
+        <app-review-meetings [meetings]="meetings" [projects]="projects" (logMeeting)="openLogMeetingForm()">
+        </app-review-meetings>
+      </ng-container>
     </div>
   </main>
 </div>
@@ -151,11 +151,11 @@
         <div class="frow">
           <div class="fgroup">
             <label>Start date</label>
-            <input formControlName="startDate" type="text">
+            <input formControlName="startDate" type="date">
           </div>
           <div class="fgroup">
             <label>Deadline</label>
-            <input formControlName="deadline" type="text" placeholder="dd-mm-yyyy">
+            <input formControlName="deadline" type="date">
           </div>
         </div>
         <div class="fgroup">
@@ -249,11 +249,11 @@
             <span class="progress-num">{{ updateProgressForm.get('progress')?.value }}%</span>
           </div>
           <div class="before-after">
-            Previous: <b>40%</b> <span class="arrow">→</span> New: <b>{{ updateProgressForm.get('progress')?.value
+            Previous: <b>{{ selectedProjectCurrentProgress }}%</b> <span class="arrow">→</span> New: <b>{{ updateProgressForm.get('progress')?.value
               }}%</b>
             <span style="color:var(--verify)">
-              (+{{ updateProgressForm.get('progress')?.value - 40 >= 0 ? (updateProgressForm.get('progress')?.value -
-              40) : 0 }}%)
+              (+{{ updateProgressForm.get('progress')?.value - selectedProjectCurrentProgress >= 0 ? (updateProgressForm.get('progress')?.value -
+              selectedProjectCurrentProgress) : 0 }}%)
             </span>
           </div>
         </div>
@@ -289,8 +289,8 @@
         </div>
 
         <div class="fgroup">
-          <label>Notes</label>
-          <textarea rows="3" formControlName="notes" placeholder="What changed since the last update?"></textarea>
+          <label>Project Description</label>
+          <textarea rows="3" formControlName="description" placeholder="Scope, deliverables, key requirements…"></textarea>
         </div>
       </div>
       <div class="premium-modal-foot">
@@ -331,11 +331,11 @@
         <div class="frow">
           <div class="fgroup">
             <label>Date</label>
-            <input formControlName="date" type="text">
+            <input formControlName="date" type="date">
           </div>
           <div class="fgroup">
             <label>Time</label>
-            <input formControlName="time" type="text" placeholder="e.g., 2:00 PM">
+            <input formControlName="time" type="time">
           </div>
         </div>
 
@@ -360,15 +360,18 @@
         </div>
 
         <div class="section-tag">Recording &amp; files</div>
+        <input #recordingInput type="file" accept="audio/mp3,video/mp4" (change)="onRecordingSelected($event)" style="display: none;">
+        <input #filesInput type="file" accept=".pdf,.docx,.xlsx" multiple (change)="onFilesSelected($event)" style="display: none;">
+
         <div class="frow">
-          <div class="upload-box">
+          <div class="upload-box" (click)="recordingInput.click()" style="cursor: pointer;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 1v14M8 6l4-4 4 4" />
               <rect x="4" y="16" width="16" height="6" rx="1" />
             </svg>
             Upload recording<small>MP3, MP4 up to 200MB</small>
           </div>
-          <div class="upload-box">
+          <div class="upload-box" (click)="filesInput.click()" style="cursor: pointer;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7" />
               <path d="M7 8l5-5 5 5M12 3v13" />
@@ -376,11 +379,28 @@
             Upload files<small>PDF, DOCX, XLSX — multiple allowed</small>
           </div>
         </div>
-        <div class="file-row">
-          <span class="name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+        <!-- Render Selected Recording -->
+        <div class="file-row" *ngIf="selectedRecording">
+          <span class="name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M10 8l6 4-6 4V8z"/>
+            </svg>
+            {{ selectedRecording.name }} ({{ getFriendlySize(selectedRecording.size) }})
+          </span>
+          <span class="rm" (click)="removeSelectedRecording()" style="cursor: pointer;">✕</span>
+        </div>
+
+        <!-- Render Selected Files -->
+        <div class="file-row" *ngFor="let f of selectedFiles; let idx = index">
+          <span class="name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            </svg>Q3_review_deck.pdf</span>
-          <span class="rm">✕</span>
+            </svg>
+            {{ f.name }} ({{ getFriendlySize(f.size) }})
+          </span>
+          <span class="rm" (click)="removeSelectedFile(idx)" style="cursor: pointer;">✕</span>
         </div>
       </div>
       <div class="premium-modal-foot">

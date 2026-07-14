@@ -1,0 +1,64 @@
+<div class="logs-header-bar">
+  <button type="button" class="btn-premium btn-premium-verify icon-only" (click)="onAddEntry.emit()" title="Financial Entry">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <div class="filter-actions">
+    <label for="financialFilterSelectSub">Period: </label>
+    <select id="financialFilterSelectSub" class="table-filter" [(ngModel)]="selectedPeriod">
+      <option value="All">All Periods</option>
+      <option value="2026">2026 (Year)</option>
+      <option value="January">January</option>
+      <option value="February">February</option>
+      <option value="March">March</option>
+      <option value="April">April</option>
+      <option value="May">May</option>
+      <option value="June">June</option>
+      <option value="July">July</option>
+      <option value="August">August</option>
+      <option value="September">September</option>
+      <option value="October">October</option>
+      <option value="November">November</option>
+      <option value="December">December</option>
+    </select>
+    <button type="button" class="btn-download" (click)="downloadCSV()">
+      <i class="fa fa-download"></i> Download CSV
+    </button>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-wrapper">
+    <table class="premium-table">
+      <thead>
+        <tr>
+          <th>Period</th>
+          <th>Date Range</th>
+          <th>Total Revenue</th>
+          <th>SaaS Revenue</th>
+          <th>Marketing Cost</th>
+          <th>Travel Reimb.</th>
+          <th>Admin Expenses</th>
+          <th>Other Expenses</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of filteredEntries">
+          <td class="date-col"><strong>{{ entry.month }} {{ entry.year }}</strong></td>
+          <td class="range-col">{{ entry.startDate }} to {{ entry.endDate }}</td>
+          <td class="num-col currency">${{ entry.totalRevenue | number }}</td>
+          <td class="num-col currency">${{ entry.saasRevenue | number }}</td>
+          <td class="num-col expense">${{ entry.salesMarketingCost | number }}</td>
+          <td class="num-col expense">${{ entry.travelReimbursements | number }}</td>
+          <td class="num-col expense">${{ entry.adminExpenses | number }}</td>
+          <td class="num-col expense">${{ entry.otherExpenses | number }}</td>
+        </tr>
+        <tr *ngIf="filteredEntries.length === 0">
+          <td colspan="8" class="empty-row">No financial logs match the period filter.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="table-summary-note">
+    Showing {{ filteredEntries.length }} of {{ entries.length }} monthly financial entries
+  </div>
+</div>

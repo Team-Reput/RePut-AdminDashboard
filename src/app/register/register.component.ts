@@ -103,7 +103,7 @@ export class RegisterComponent implements OnInit {
         if (res.success) {
           this.registerSuccess = 'Registration successful! Redirecting to sign in...';
           setTimeout(() => {
-            this.router.navigate(['/signin'], { queryParams: { registered: 'true' } });
+            this.router.navigate(['/login'], { queryParams: { registered: 'true' } });
           }, 2000);
         } else {
           this.registerError = res.message || 'Registration failed.';

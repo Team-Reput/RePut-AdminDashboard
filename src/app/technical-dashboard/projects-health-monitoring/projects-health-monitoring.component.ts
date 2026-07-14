@@ -17,8 +17,24 @@ export class ProjectsHealthMonitoringComponent {
   @Output() newProject = new EventEmitter<void>();
   @Output() updateProgress = new EventEmitter<Project>();
   @Output() logMeeting = new EventEmitter<Project>();
+  @Output() filterChanged = new EventEmitter<string>();
 
   selectedFilter = 'All';
+
+  // Track expanded state of descriptions per project
+  expandedProjects: { [projectName: string]: boolean } = {};
+
+  toggleDescription(projectName: string) {
+    this.expandedProjects[projectName] = !this.expandedProjects[projectName];
+  }
+
+  isExpanded(projectName: string): boolean {
+    return !!this.expandedProjects[projectName];
+  }
+
+  onFilterChange() {
+    this.filterChanged.emit(this.selectedFilter);
+  }
 
   // Get Initials for Avatars
   getInitials(name: string): string {
@@ -113,7 +129,10 @@ export class ProjectsHealthMonitoringComponent {
       return this.projects;
     }
     if (this.selectedFilter === 'In progress') {
-      return this.projects.filter(p => p.status === 'progress' || p.status === 'accepted');
+      return this.projects.filter(p => p.status === 'progress');
+    }
+    if (this.selectedFilter === 'Accepted by client') {
+      return this.projects.filter(p => p.status === 'accepted');
     }
     if (this.selectedFilter === 'On hold') {
       return this.projects.filter(p => p.status === 'hold');
@@ -121,36 +140,57 @@ export class ProjectsHealthMonitoringComponent {
     if (this.selectedFilter === 'Completed') {
       return this.projects.filter(p => p.status === 'completed');
     }
+    if (this.selectedFilter === 'Cancelled') {
+      return this.projects.filter(p => p.status === 'cancelled');
+    }
     return this.projects;
   }
 
+  // Get weight of priority for sorting (critical first, then high, medium, low)
+  getPriorityWeight(priority: string): number {
+    switch (priority) {
+      case 'critical': return 4;
+      case 'high': return 3;
+      case 'medium': return 2;
+      case 'low': return 1;
+      default: return 0;
+    }
+  }
+
   // Sort filtered projects to ensure child projects are nested directly under their parent
+  // and sorted by priority (critical first, then high, medium, low)
   get sortedAndFilteredProjects(): Project[] {
     const list = this.filteredProjects;
     const sorted: Project[] = [];
     const visited = new Set<string>();
 
-    // Step 1: Find all standalone and parent projects (those without parent, or parent not in list)
-    const parents = list.filter(p => !p.parentProject);
+    // Step 1: Find all standalone and parent projects, sorted by priority weight desc
+    const parents = list
+      .filter(p => !p.parentProject)
+      .sort((a, b) => this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority));
 
     parents.forEach(parent => {
       sorted.push(parent);
       visited.add(parent.name);
 
-      // Find children of this parent in the filtered list
-      const children = list.filter(c => c.parentProject === parent.name);
+      // Find children of this parent in the filtered list, sorted by priority weight desc
+      const children = list
+        .filter(c => c.parentProject === parent.name)
+        .sort((a, b) => this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority));
       children.forEach(child => {
         sorted.push(child);
         visited.add(child.name);
       });
     });
 
-    // Step 2: Add any remaining projects that were not processed (e.g. orphans or edge cases)
-    list.forEach(project => {
-      if (!visited.has(project.name)) {
-        sorted.push(project);
-        visited.add(project.name);
-      }
+    // Step 2: Add any remaining projects (orphans/edge cases), sorted by priority weight desc
+    const remaining = list
+      .filter(project => !visited.has(project.name))
+      .sort((a, b) => this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority));
+    
+    remaining.forEach(project => {
+      sorted.push(project);
+      visited.add(project.name);
     });
 
     return sorted;

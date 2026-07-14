@@ -10,23 +10,30 @@ import { ProjectService } from '../services/project.service';
 import { ReviewMeetingsComponent } from './review-meetings/review-meetings.component';
 import { Meeting } from '../models/meeting.model';
 import { MeetingService } from '../services/meeting.service';
+import { AuthService } from '../services/auth.service';
+import { LoadingComponent } from '../loading/loading.component';
 
 @Component({
   selector: 'app-technical-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HighchartsChartModule, RouterModule, ProjectsHealthMonitoringComponent, ReviewMeetingsComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, HighchartsChartModule, RouterModule, ProjectsHealthMonitoringComponent, ReviewMeetingsComponent, LoadingComponent],
   templateUrl: './technical-dashboard.component.html',
   styleUrl: './technical-dashboard.component.scss'
 })
 export class TechnicalDashboardComponent {
   username = 'John Doe';
+  isLoading = false;
+  private activeLoads = 0;
   Highcharts = Highcharts;
   loanDisbursementChartOptions: any;
   pieChartOptions: any;
-  
+
   projects: Project[] = [];
   meetings: Meeting[] = [];
-  
+  currentFilter = 'All';
+  selectedRecording: File | null = null;
+  selectedFiles: File[] = [];
+
   // Modals Visibility
   isNewProjectFormVisible = false;
   isUpdateProgressFormVisible = false;
@@ -52,17 +59,23 @@ export class TechnicalDashboardComponent {
   constructor(
     private fb: FormBuilder,
     private projectService: ProjectService,
-    private meetingService: MeetingService
-  ){}
+    private meetingService: MeetingService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
+    const currentUser = this.authService.getUser();
+    if (currentUser) {
+      this.username = currentUser.full_name;
+    }
+
     // New Project Form Initialization
     this.newProjectForm = this.fb.group({
       projectName: ['', Validators.required],
       clientName: [''],
       clientContact: [''],
       parentProject: [''],
-      startDate: ['06-07-2026'],
+      startDate: [this.getTodayDate()],
       deadline: [''],
       priority: ['medium'],
       teamMembers: [this.newProjectTeamMembers],
@@ -76,14 +89,26 @@ export class TechnicalDashboardComponent {
       progress: [65],
       priority: ['medium'],
       status: ['progress'],
-      notes: ['']
+      description: ['']
+    });
+
+    this.updateProgressForm.get('project')?.valueChanges.subscribe(projectName => {
+      const project = this.projects.find(p => p.name === projectName);
+      if (project) {
+        this.updateProgressForm.patchValue({
+          progress: project.progress,
+          priority: project.priority,
+          status: project.status,
+          description: project.description || ''
+        }, { emitEvent: false });
+      }
     });
 
     // Log Meeting Form Initialization
     this.logMeetingForm = this.fb.group({
       meetingTitle: [''],
       relatedProject: ['E-commerce platform revamp'],
-      date: ['06-07-2026'],
+      date: [this.getTodayDate()],
       time: [''],
       attendees: [this.logMeetingAttendees],
       minutesOfMeeting: ['']
@@ -95,65 +120,47 @@ export class TechnicalDashboardComponent {
     this.initializeMeetings();
   }
 
-  initializeProjects() {
-    const stored = localStorage.getItem('reput_projects');
-    if (stored) {
-      this.projects = JSON.parse(stored);
-    } else {
-      const defaultProjects: Project[] = [
-        {
-          id: '1',
-          name: 'E-commerce platform revamp',
-          client: 'Acme Textiles',
-          deadline: '18 Jul 2026',
-          priority: 'high',
-          status: 'progress',
-          progress: 65,
-          teamMembers: ['Jyoti Sharma', 'Rahul Verma', 'John Doe', 'Partner Manager']
-        },
-        {
-          id: '2',
-          name: 'Payment gateway integration',
-          client: 'Acme Textiles',
-          parentProject: 'E-commerce platform revamp',
-          deadline: '12 Jul 2026',
-          priority: 'medium',
-          status: 'progress',
-          progress: 40,
-          teamMembers: ['Rahul Verma']
-        },
-        {
-          id: '3',
-          name: 'API Migration',
-          client: 'Internal',
-          deadline: '30 Aug 2026',
-          priority: 'medium',
-          status: 'hold',
-          progress: 20,
-          teamMembers: ['Ankit Kumar']
-        },
-        {
-          id: '4',
-          name: 'Mobile App v2',
-          client: 'Nimbus Retail',
-          deadline: '28 Jun 2026',
-          priority: 'low',
-          status: 'completed',
-          progress: 100,
-          teamMembers: ['Jyoti Sharma', 'Piyush Joshi']
-        }
-      ];
-      this.projects = defaultProjects;
-      this.saveProjectsToStorage();
+  private startLoad() {
+    this.activeLoads++;
+    this.isLoading = true;
+  }
+
+  private endLoad() {
+    this.activeLoads--;
+    if (this.activeLoads <= 0) {
+      this.activeLoads = 0;
+      this.isLoading = false;
     }
   }
 
-  saveProjectsToStorage() {
-    localStorage.setItem('reput_projects', JSON.stringify(this.projects));
+  initializeProjects() {
+    const currentUser = this.authService.getUser();
+    const currentUserId = currentUser ? currentUser.user_id : 1;
+
+    this.startLoad();
+    this.projectService.getProjectsByUser(currentUserId, this.currentFilter).subscribe({
+      next: (dbProjects: Project[]) => {
+        this.projects = dbProjects;
+        this.endLoad();
+      },
+      error: (err) => {
+        console.error('Error fetching projects from database:', err);
+        this.projects = [];
+        this.endLoad();
+      }
+    });
+  }
+
+  onFilterChanged(filter: string) {
+    this.currentFilter = filter;
+    this.initializeProjects();
   }
 
   initializeMeetings() {
-    const currentUserId = 1; // Replace with logged-in user id
+    const currentUser = this.authService.getUser();
+    const currentUserId = currentUser ? currentUser.user_id : 1;
+
+    this.startLoad();
     this.meetingService.getMeetingsByUser(currentUserId).subscribe({
       next: (dbMeetings) => {
         if (dbMeetings && dbMeetings.length > 0) {
@@ -169,10 +176,12 @@ export class TechnicalDashboardComponent {
             recordingLength: m.recordingLength,
             filesCount: Number(m.filesCount || 0)
           }));
+          this.sortMeetings();
           this.saveMeetingsToStorage();
         } else {
           this.useDefaultMeetings();
         }
+        this.endLoad();
       },
       error: (err) => {
         console.error('Error fetching meetings from database, falling back to storage:', err);
@@ -182,51 +191,24 @@ export class TechnicalDashboardComponent {
         } else {
           this.useDefaultMeetings();
         }
+        this.endLoad();
       }
     });
   }
 
   useDefaultMeetings() {
-    const defaultMeetings: Meeting[] = [
-      {
-        id: '20260706140000',
-        title: 'Sprint review – week 12',
-        project: 'E-commerce platform revamp',
-        date: '06 Jul 2026',
-        time: '2:00 PM',
-        minutesOfMeeting: 'Approved final checkout flow; payment gateway sub-project pushed by 5 days due to sandbox delays. Action: Rahul to share updated API docs by Thu.',
-        attendees: ['Jyoti Sharma', 'Rahul Verma', 'John Doe'],
-        recordingLength: '24:18',
-        filesCount: 2
-      },
-      {
-        id: '20260629113000',
-        title: 'API Migration – kickoff',
-        project: 'API Migration',
-        date: '29 Jun 2026',
-        time: '11:30 AM',
-        minutesOfMeeting: "Migration scope frozen to auth + billing services only. Aman flagged staging environment isn't ready — project moved to On Hold until infra ticket closes.",
-        attendees: ['Ankit Kumar', 'Jyoti Sharma'],
-        filesCount: 1
-      },
-      {
-        id: '20260625160000',
-        title: 'Client sign-off call',
-        project: 'Mobile App v2',
-        date: '25 Jun 2026',
-        time: '4:00 PM',
-        minutesOfMeeting: 'Outcome: Client approved final build for release. No blockers raised. Delivery marked complete same day — see project card for status.',
-        attendees: ['Jyoti Sharma', 'Piyush Joshi', 'Client stakeholder', 'John Doe'],
-        recordingLength: '41:02',
-        filesCount: 0
-      }
-    ];
+    const defaultMeetings: Meeting[] = [];
     this.meetings = defaultMeetings;
     this.saveMeetingsToStorage();
   }
 
   saveMeetingsToStorage() {
     localStorage.setItem('reput_meetings', JSON.stringify(this.meetings));
+  }
+
+  getTodayDate(): string {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 
   // Get Initials for Avatars
@@ -287,7 +269,8 @@ export class TechnicalDashboardComponent {
       project: project.name,
       progress: project.progress,
       priority: project.priority,
-      status: project.status
+      status: project.status,
+      description: project.description || ''
     });
     this.isUpdateProgressFormVisible = true;
   }
@@ -334,11 +317,11 @@ export class TechnicalDashboardComponent {
         description: formVal.description || ''
       };
 
-      const currentUserId = 1; // Replace with logged-in user id if authentication is set up
+      const currentUser = this.authService.getUser();
+      const currentUserId = currentUser ? currentUser.user_id : 1;
       this.projectService.insertProject(newProj, currentUserId).subscribe({
         next: (savedProject: Project) => {
           this.projects.push(savedProject);
-          this.saveProjectsToStorage();
           this.closeNewProjectForm();
 
           // Reset team member pickers
@@ -348,7 +331,7 @@ export class TechnicalDashboardComponent {
             clientName: '',
             clientContact: '',
             parentProject: '',
-            startDate: '06-07-2026',
+            startDate: this.getTodayDate(),
             deadline: '',
             priority: 'medium',
             teamMembers: [this.newProjectTeamMembers],
@@ -364,6 +347,81 @@ export class TechnicalDashboardComponent {
     }
   }
 
+  get selectedProjectCurrentProgress(): number {
+    const selectedProjectName = this.updateProgressForm?.get('project')?.value;
+    const project = this.projects.find(p => p.name === selectedProjectName);
+    return project ? project.progress : 0;
+  }
+
+  getMeetingDateTime(m: Meeting): Date {
+    let timeStr = m.time || '12:00 PM';
+    let hours = 12;
+    let minutes = 0;
+    
+    const ampmMatch = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (ampmMatch) {
+      hours = parseInt(ampmMatch[1], 10);
+      minutes = parseInt(ampmMatch[2], 10);
+      const ampm = ampmMatch[3].toUpperCase();
+      if (ampm === 'PM' && hours < 12) hours += 12;
+      if (ampm === 'AM' && hours === 12) hours = 0;
+    } else {
+      const hmMatch = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+      if (hmMatch) {
+        hours = parseInt(hmMatch[1], 10);
+        minutes = parseInt(hmMatch[2], 10);
+      }
+    }
+    
+    const d = new Date(m.date);
+    if (!isNaN(d.getTime())) {
+      d.setHours(hours, minutes, 0, 0);
+      return d;
+    }
+    return new Date(0);
+  }
+
+  sortMeetings() {
+    this.meetings.sort((a, b) => this.getMeetingDateTime(b).getTime() - this.getMeetingDateTime(a).getTime());
+  }
+
+  onRecordingSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      const maxSize = 200 * 1024 * 1024; // 200MB
+      if (file.size > maxSize) {
+        alert('Recording file size exceeds 200MB limit.');
+        return;
+      }
+      this.selectedRecording = file;
+    }
+  }
+
+  onFilesSelected(event: any) {
+    const files = event.target.files;
+    if (files) {
+      for (let i = 0; i < files.length; i++) {
+        this.selectedFiles.push(files[i]);
+      }
+    }
+  }
+
+  removeSelectedRecording() {
+    this.selectedRecording = null;
+  }
+
+  removeSelectedFile(idx: number) {
+    this.selectedFiles.splice(idx, 1);
+  }
+
+  getFriendlySize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
   onSubmitUpdateProgress() {
     if (this.updateProgressForm.valid) {
       const formVal = this.updateProgressForm.value;
@@ -373,7 +431,8 @@ export class TechnicalDashboardComponent {
         formVal.project,
         progressVal,
         formVal.priority,
-        formVal.status
+        formVal.status,
+        formVal.description
       ).subscribe({
         next: (updatedProject: Project) => {
           const project = this.projects.find(p => p.name === formVal.project);
@@ -381,7 +440,7 @@ export class TechnicalDashboardComponent {
             project.progress = updatedProject.progress;
             project.priority = updatedProject.priority;
             project.status = updatedProject.status;
-            this.saveProjectsToStorage();
+            project.description = updatedProject.description;
           }
           this.closeUpdateProgressForm();
         },
@@ -404,11 +463,12 @@ export class TechnicalDashboardComponent {
         time: formVal.time || '12:00 PM',
         minutesOfMeeting: formVal.minutesOfMeeting || 'No MOM provided.',
         attendees: [...this.logMeetingAttendees],
-        recordingLength: formVal.minutesOfMeeting.toLowerCase().includes('recording') ? '15:00' : undefined,
-        filesCount: 1
+        recordingLength: this.selectedRecording ? '18:40' : undefined,
+        filesCount: this.selectedFiles.length
       };
 
-      const currentUserId = 1; // Replace with logged-in user id if authentication is set up
+      const currentUser = this.authService.getUser();
+      const currentUserId = currentUser ? currentUser.user_id : 1;
       this.meetingService.insertMeeting(newMeeting, currentUserId).subscribe({
         next: (savedMeeting: Meeting) => {
           // Parse returned backend values to UI structure
@@ -424,15 +484,18 @@ export class TechnicalDashboardComponent {
             filesCount: Number(savedMeeting.filesCount || 0)
           };
           this.meetings.push(mappedMeeting);
+          this.sortMeetings();
           this.saveMeetingsToStorage();
           this.closeLogMeetingForm();
 
           // Reset
+          this.selectedRecording = null;
+          this.selectedFiles = [];
           this.logMeetingAttendees = ['Jyoti Sharma', 'Client stakeholder'];
           this.logMeetingForm.reset({
             meetingTitle: '',
             relatedProject: this.projects.length > 0 ? this.projects[0].name : '',
-            date: '06-07-2026',
+            date: this.getTodayDate(),
             time: '',
             attendees: [this.logMeetingAttendees],
             minutesOfMeeting: ''
