@@ -1,0 +1,61 @@
+<div class="logs-header-bar">
+  <button type="button" class="btn-premium btn-premium-sales icon-only" (click)="onAddEntry.emit()" title="Add Sales Entry">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <div class="filter-actions">
+    <label for="salesFilterSelectSub">Status: </label>
+    <select id="salesFilterSelectSub" class="table-filter" [(ngModel)]="selectedStatus">
+      <option value="All">All Statuses</option>
+      <option value="in-talks">In Talks</option>
+      <option value="qualified">Qualified</option>
+      <option value="proposal">Proposal Sent</option>
+      <option value="negotiation">Negotiation</option>
+      <option value="closed-won">Closed Won</option>
+      <option value="closed-lost">Closed Lost</option>
+    </select>
+    <button type="button" class="btn-download" (click)="downloadCSV()">
+      <i class="fa fa-download"></i> Download CSV
+    </button>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-wrapper">
+    <table class="premium-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Status</th>
+          <th>New Customers</th>
+          <th>Offers Made</th>
+          <th>Expected Revenue</th>
+          <th>Lost Deals</th>
+          <th>Pipeline Progress</th>
+          <th>Obstacles / Blockers</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of filteredEntries">
+          <td class="date-col"><strong>{{ entry.date }}</strong></td>
+          <td>
+            <span class="status-badge" [class]="entry.leadStatus">
+              {{ entry.leadStatus | titlecase }}
+            </span>
+          </td>
+          <td class="num-col">{{ entry.newCustomers }}</td>
+          <td class="num-col">{{ entry.offersMade }}</td>
+          <td class="num-col currency">${{ entry.expectedRevenue | number }}</td>
+          <td class="num-col">{{ entry.churnLostDeals }}</td>
+          <td class="text-col" [title]="entry.pipelineProgress">{{ entry.pipelineProgress }}</td>
+          <td class="text-col text-danger" [title]="entry.obstaclesBlockers">{{ entry.obstaclesBlockers }}</td>
+        </tr>
+        <tr *ngIf="filteredEntries.length === 0">
+          <td colspan="8" class="empty-row">No sales logs match the status filter.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="table-summary-note">
+    Showing {{ filteredEntries.length }} of {{ entries.length }} sales log entries
+  </div>
+</div>

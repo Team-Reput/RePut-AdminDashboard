@@ -1,0 +1,31 @@
+<div class="charts-grid">
+  <!-- Trend Chart Card -->
+  <div class="chart-card large">
+    <div class="chart-header">
+      <h3>Financial Trends</h3>
+    </div>
+    <div class="chart-placeholder" *ngIf="revenueCostTrendsChartOptions">
+      <highcharts-chart [Highcharts]="Highcharts" [options]="revenueCostTrendsChartOptions"
+        style="width: 100%; height: 300px; display: block;">
+      </highcharts-chart>
+    </div>
+    <div class="empty-state" *ngIf="!revenueCostTrendsChartOptions">
+      No financial data available to display trends.
+    </div>
+  </div>
+
+  <!-- Breakdown Chart Card -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <h3>Expense Breakdown</h3>
+    </div>
+    <div class="chart-placeholder pie" *ngIf="expenseBreakdownChartOptions">
+      <highcharts-chart [Highcharts]="Highcharts" [options]="expenseBreakdownChartOptions"
+        style="width: 100%; height: 300px; display: block;">
+      </highcharts-chart>
+    </div>
+    <div class="empty-state" *ngIf="!expenseBreakdownChartOptions">
+      No expense data available.
+    </div>
+  </div>
+</div>

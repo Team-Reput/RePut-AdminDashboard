@@ -1,0 +1,188 @@
+.logs-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.table-filter {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 13px;
+  color: #1f2937;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+}
+
+.table-filter:focus {
+  border-color: #4f46e5;
+}
+
+.table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.premium-table th {
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  border-bottom: 2px solid #f3f4f6;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.premium-table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.premium-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Badge classes */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+
+.status-badge.closed-won {
+  color: #065f46;
+  background-color: #d1fae5;
+}
+
+.status-badge.closed-lost {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.status-badge.proposal {
+  color: #5b21b6;
+  background-color: #ede9fe;
+}
+
+.status-badge.negotiation {
+  color: #9a3412;
+  background-color: #ffedd5;
+}
+
+.status-badge.in-talks {
+  color: #92400e;
+  background-color: #fef3c7;
+}
+
+.status-badge.qualified {
+  color: #075985;
+  background-color: #e0f2fe;
+}
+
+/* Column formatting */
+.num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.premium-table th.num-col {
+  text-align: right;
+}
+
+.currency {
+  color: #059669;
+  font-weight: 600;
+}
+
+.date-col {
+  white-space: nowrap;
+}
+
+.text-col {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-danger {
+  color: #ef4444;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 36px !important;
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 13.5px;
+}
+
+.table-summary-note {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 14px;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--sales);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(70, 64, 222, 0.25);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  i {
+    font-size: 12px;
+  }
+
+  &:hover {
+    background: #3a35c2;
+    transform: translateY(-1.5px);
+    box-shadow: 0 5px 12px rgba(70, 64, 222, 0.45);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(70, 64, 222, 0.25);
+  }
+}
+

@@ -20,6 +20,7 @@ export class ReviewMeetingsComponent {
 
   selectedFilter = 'All';
   expandedMeetingId: string | null = null;
+  selectedMeetingForDetails: Meeting | null = null;
 
   onLogMeeting() {
     this.logMeeting.emit();
@@ -37,6 +38,14 @@ export class ReviewMeetingsComponent {
     } else {
       this.expandedMeetingId = meetingId;
     }
+  }
+
+  openMeetingDetails(meeting: Meeting) {
+    this.selectedMeetingForDetails = meeting;
+  }
+
+  closeMeetingDetails() {
+    this.selectedMeetingForDetails = null;
   }
 
   get filteredMeetings(): Meeting[] {

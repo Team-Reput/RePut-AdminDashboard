@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Meeting } from '../models/meeting.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MeetingService {
-  private apiUrl = 'http://localhost:3000/api/meetings';
+  private apiUrl = `${environment.apiUrl}/meetings`;
 
   constructor(private http: HttpClient) {}
 
