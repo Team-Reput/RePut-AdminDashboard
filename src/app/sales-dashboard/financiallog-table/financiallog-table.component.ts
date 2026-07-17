@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinancialEntry } from '../sales-dashboard.component';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-financiallog-table',
@@ -16,10 +17,11 @@ export class FinanciallogTableComponent {
   selectedPeriod = 'All';
 
   get filteredEntries(): FinancialEntry[] {
+    const list = this.entries || [];
     if (this.selectedPeriod === 'All') {
-      return this.entries;
+      return list;
     }
-    return this.entries.filter(e => e.month === this.selectedPeriod || e.year === this.selectedPeriod);
+    return list.filter(e => e.month === this.selectedPeriod || e.year === this.selectedPeriod);
   }
 
   downloadCSV() {
@@ -64,16 +66,10 @@ export class FinanciallogTableComponent {
 
     const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
     
     const timestamp = new Date().toISOString().slice(0, 10);
     const filename = `financial_report_${this.selectedPeriod.toLowerCase()}_${timestamp}.csv`;
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    
+    saveAs(blob, filename);
   }
 }

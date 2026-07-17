@@ -4,6 +4,11 @@ import { FormBuilder, FormsModule, Validators, FormGroup, ReactiveFormsModule } 
 import { Router } from '@angular/router';
 import * as Highcharts from 'highcharts';
 import { HighchartsChartModule } from 'highcharts-angular';
+import HC_exporting from 'highcharts/modules/exporting';
+import HC_offlineExporting from 'highcharts/modules/offline-exporting';
+
+HC_exporting(Highcharts);
+HC_offlineExporting(Highcharts);
 import { SaleslogTableComponent } from './saleslog-table/saleslog-table.component';
 import { FinanciallogTableComponent } from './financiallog-table/financiallog-table.component';
 import { FinancialChartsComponent } from './financial-charts/financial-charts.component';
@@ -63,10 +68,10 @@ export class SalesDashboardComponent {
 
 
   salesStats = {
-    totalCustomers: 5,
-    totalOffers: 8,
-    expectedRevenue: 50000,
-    churn: 1
+    totalCustomers: 0,
+    totalOffers: 0,
+    expectedRevenue: 0,
+    churn: 0
   };
 
   Highcharts = Highcharts;  // Highcharts instance
@@ -79,21 +84,9 @@ export class SalesDashboardComponent {
   activeTable: 'sales' | 'financial' = 'sales';
 
   // Initial Demo Data
-  salesEntries: SalesEntry[] = [
-    { date: '2026-07-01', leadStatus: 'closed-won', newCustomers: 2, offersMade: 3, expectedRevenue: 12000, churnLostDeals: 0, pipelineProgress: 'Finalized onboarding and kickoff meetings', obstaclesBlockers: 'None' },
-    { date: '2026-07-05', leadStatus: 'proposal', newCustomers: 0, offersMade: 2, expectedRevenue: 8500, churnLostDeals: 0, pipelineProgress: 'Draft proposal submitted for evaluation', obstaclesBlockers: 'Client delaying response' },
-    { date: '2026-07-08', leadStatus: 'negotiation', newCustomers: 1, offersMade: 1, expectedRevenue: 9500, churnLostDeals: 0, pipelineProgress: 'Contract terms renegotiation phase', obstaclesBlockers: 'Legal team reviewing clauses' },
-    { date: '2026-07-10', leadStatus: 'closed-lost', newCustomers: 0, offersMade: 1, expectedRevenue: 0, churnLostDeals: 1, pipelineProgress: 'Competitor selected due to lower pricing tier', obstaclesBlockers: 'High price friction' },
-    { date: '2026-07-12', leadStatus: 'in-talks', newCustomers: 0, offersMade: 1, expectedRevenue: 20000, churnLostDeals: 0, pipelineProgress: 'Initial call completed with promising feedback', obstaclesBlockers: 'None' }
-  ];
+  salesEntries: SalesEntry[] = [];
 
-  financialEntries: FinancialEntry[] = [
-    { month: 'January', year: '2026', startDate: '2026-01-01', endDate: '2026-01-31', totalRevenue: 15000, saasRevenue: 10000, salesMarketingCost: 3500, travelReimbursements: 500, adminExpenses: 1200, otherExpenses: 300 },
-    { month: 'February', year: '2026', startDate: '2026-02-01', endDate: '2026-02-28', totalRevenue: 18000, saasRevenue: 12000, salesMarketingCost: 4000, travelReimbursements: 600, adminExpenses: 1200, otherExpenses: 400 },
-    { month: 'March', year: '2026', startDate: '2026-03-01', endDate: '2026-03-31', totalRevenue: 22000, saasRevenue: 15000, salesMarketingCost: 4200, travelReimbursements: 800, adminExpenses: 1500, otherExpenses: 500 },
-    { month: 'April', year: '2026', startDate: '2026-04-01', endDate: '2026-04-30', totalRevenue: 20000, saasRevenue: 13000, salesMarketingCost: 3800, travelReimbursements: 400, adminExpenses: 1300, otherExpenses: 200 },
-    { month: 'May', year: '2026', startDate: '2026-05-01', endDate: '2026-05-31', totalRevenue: 26000, saasRevenue: 18000, salesMarketingCost: 4500, travelReimbursements: 700, adminExpenses: 1600, otherExpenses: 600 }
-  ];
+  financialEntries: FinancialEntry[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -393,7 +386,15 @@ export class SalesDashboardComponent {
             radius: 6
           }
         }
-      ]
+      ],
+      exporting: {
+        enabled: true,
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'downloadPNG', 'downloadPDF']
+          }
+        }
+      }
     };
   }
 
@@ -456,7 +457,15 @@ export class SalesDashboardComponent {
         name: 'Leads Status',
         colorByPoint: true,
         data: chartData
-      }]
+      }],
+      exporting: {
+        enabled: true,
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'downloadPNG', 'downloadPDF']
+          }
+        }
+      }
     };
   }
 }

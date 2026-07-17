@@ -29,6 +29,7 @@ import { OverviewDashboardComponent } from './overview-dashboard/overview-dashbo
 import { SalesDashboardComponent } from './sales-dashboard/sales-dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { ChartGeneratorComponent } from './chart-generator/chart-generator.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -46,6 +47,7 @@ export const routes: Routes = [
       { path: 'overview', component: OverviewDashboardComponent },
       { path: 'technical-dashboard', component: TechnicalDashboardComponent },
       { path: 'sales-dashboard', component: SalesDashboardComponent },
+      { path: 'charts', component: ChartGeneratorComponent }
     ]
   },
 

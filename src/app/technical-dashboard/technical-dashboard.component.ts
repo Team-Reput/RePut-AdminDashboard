@@ -4,6 +4,11 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import * as Highcharts from 'highcharts';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { RouterModule } from '@angular/router';
+import HC_exporting from 'highcharts/modules/exporting';
+import HC_offlineExporting from 'highcharts/modules/offline-exporting';
+
+HC_exporting(Highcharts);
+HC_offlineExporting(Highcharts);
 import { ProjectsHealthMonitoringComponent } from './projects-health-monitoring/projects-health-monitoring.component';
 import { Project } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
@@ -554,6 +559,14 @@ export class TechnicalDashboardComponent {
         layout: 'vertical',
         align: 'right',
         verticalAlign: 'top'
+      },
+      exporting: {
+        enabled: true,
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'downloadPNG', 'downloadPDF']
+          }
+        }
       }
     };
   }
@@ -590,7 +603,15 @@ export class TechnicalDashboardComponent {
           y: 10,  // Replace with actual data value
           color: '#4caf50'
         }]
-      }]
+      }],
+      exporting: {
+        enabled: true,
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'downloadPNG', 'downloadPDF']
+          }
+        }
+      }
     };
   }
 }

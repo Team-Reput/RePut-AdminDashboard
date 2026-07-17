@@ -1,0 +1,214 @@
+<div class="dashboard-container">
+  <main class="main-content">
+    <div class="content">
+      <div class="page-title">
+        <h1>Highcharts Bar Graph Generator</h1>
+        <p>Create, edit, manage data points dynamically and export charts</p>
+      </div>
+
+      <!-- Row 1: Configurations, Add Data, and Logs List -->
+      <div class="charts-generator-row-1">
+        <!-- Chart Metadata Card -->
+        <div class="premium-card">
+          <h3 class="card-title">1. Chart Configuration</h3>
+          <div class="fgroup">
+            <label for="chartTitle">Chart Title</label>
+            <input 
+              type="text" 
+              id="chartTitle" 
+              [(ngModel)]="chartTitle" 
+              placeholder="e.g., Monthly Sales Report">
+          </div>
+          <div class="fgroup">
+            <label for="yAxisLabel">Y-Axis Label</label>
+            <input 
+              type="text" 
+              id="yAxisLabel" 
+              [(ngModel)]="yAxisLabel" 
+              placeholder="e.g., Sales ($), Revenue, Units">
+          </div>
+        </div>
+
+        <!-- Add Data Card -->
+        <div class="premium-card">
+          <h3 class="card-title">2. Add Data Point</h3>
+          <div class="frow">
+            <div class="fgroup">
+              <label for="newMonth">Month / Label</label>
+              <input 
+                type="date" 
+                id="newMonth" 
+                [(ngModel)]="newMonth" 
+                (keyup.enter)="addEntry()">
+            </div>
+            <div class="fgroup">
+              <label for="newValue">Numeric Value</label>
+              <input 
+                type="number" 
+                id="newValue" 
+                [(ngModel)]="newValue" 
+                (keyup.enter)="addEntry()"
+                placeholder="e.g., 1500000"
+                step="any">
+            </div>
+          </div>
+          <div class="d-flex justify-content-end mt-2">
+            <button 
+              type="button" 
+              class="btn btn-verify btn-sm w-100 justify-content-center"
+              (click)="addEntry()">
+              Add Entry
+            </button>
+          </div>
+        </div>
+
+        <!-- Log List Card -->
+        <div class="premium-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="card-title mb-0">3. Active Data Logs</h3>
+            <span class="badge-count" *ngIf="dataEntries.length > 0">{{ dataEntries.length }} points</span>
+          </div>
+          
+          <div class="logs-list-container">
+            <div *ngIf="dataEntries.length === 0" class="empty-logs">
+              No entries loaded. Please add some data points above to build the chart.
+            </div>
+            
+            <div class="log-item" *ngFor="let item of dataEntries; let i = index">
+              <div class="log-info">
+                <span class="log-month">{{ item.month }}</span>
+                <span class="log-value">{{ item.value.toLocaleString() }}</span>
+              </div>
+              <button class="btn-remove-log" (click)="removeEntry(i)" title="Remove Entry">
+                &times;
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top" *ngIf="dataEntries.length > 0">
+            <button 
+              type="button" 
+              class="btn btn-verify btn-sm" 
+              (click)="clearAll()">
+              Clear All
+            </button>
+            <div class="d-flex gap-2">
+              <button 
+                type="button" 
+                class="btn btn-verify btn-generate btn-sm" 
+                (click)="updateChart()">
+                Generate Graph
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-verify btn-sm"
+                style="background: #3b82f6;"
+                (click)="saveCurrentChart()">
+                Save Chart
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Visualization -->
+      <div class="charts-generator-row-2 mt-4">
+        <div class="premium-card w-100 d-flex flex-column">
+          <h3 class="card-title mb-3">Interactive Visualization</h3>
+          
+          <div class="chart-render-area flex-grow-1 d-flex align-items-center justify-content-center">
+            <div class="w-100" *ngIf="isGraphGenerated">
+              <highcharts-chart 
+                [Highcharts]="Highcharts" 
+                [options]="chartOptions"
+                style="width: 100%; height: 450px; display: block;">
+              </highcharts-chart>
+            </div>
+            
+            <div class="empty-chart-state" *ngIf="!isGraphGenerated">
+              <div class="empty-icon">📊</div>
+              <h4>No Data Available</h4>
+              <p>Enter a label and numeric value above, add entries, and click "Generate Graph" to display the chart.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Saved Charts History & Bulk Download -->
+      <div class="saved-charts-section mt-4" *ngIf="savedCharts.length > 0">
+        <div class="premium-card w-100">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+              <h3 class="card-title mb-1">Saved Charts Dashboard</h3>
+              <p class="info-tip text-muted mb-0">Select charts and download them as PNG or PDF</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+              <label class="d-flex align-items-center gap-2 cursor-pointer select-all-label">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="allSelected" 
+                  (change)="toggleSelectAll()"
+                  style="cursor: pointer; width: 16px; height: 16px;">
+                <span style="font-size: 13.5px; font-weight: 500; color: var(--ink);">Select All</span>
+              </label>
+              <select 
+                [(ngModel)]="downloadFormat" 
+                class="format-select">
+                <option value="png">PNG Image</option>
+                <option value="pdf">PDF Document</option>
+              </select>
+              <button 
+                type="button" 
+                class="btn btn-verify" 
+                (click)="downloadSelectedCharts()">
+                ⬇ Download Selected
+              </button>
+            </div>
+          </div>
+
+          <div class="saved-charts-grid">
+            <div 
+              class="saved-chart-card" 
+              *ngFor="let chart of savedCharts" 
+              [class.selected]="chart.selected">
+              <div class="saved-chart-header">
+                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                  <input 
+                    type="checkbox" 
+                    [(ngModel)]="chart.selected" 
+                    (change)="checkIfAllSelected()"
+                    style="cursor: pointer; width: 15px; height: 15px;">
+                  <span class="saved-chart-title" title="{{ chart.chartTitle }}">{{ chart.chartTitle }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                  <button 
+                    class="btn-view-saved" 
+                    (click)="viewChartFullscreen(chart.id)" 
+                    title="View Fullscreen">
+                    👁
+                  </button>
+                  <button 
+                    class="btn-delete-saved" 
+                    (click)="deleteChart(chart.id)" 
+                    title="Delete Saved Chart">
+                    &times;
+                  </button>
+                </div>
+              </div>
+              <div class="saved-chart-body">
+                <highcharts-chart 
+                  *ngIf="savedChartOptions.get(chart.id)"
+                  [Highcharts]="Highcharts" 
+                  [options]="savedChartOptions.get(chart.id)!"
+                  (chartInstance)="onChartInstance($event, chart.id)"
+                  style="width: 100%; height: 220px; display: block;">
+                </highcharts-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
