@@ -141,6 +141,7 @@
 .stat-card.cyan-border { border-left-color: #06b6d4; background: linear-gradient(135deg, #e8e8f124 0%, #58d4dea8 100%); }
 .stat-card.green-border { border-left-color: #10b981; background: linear-gradient(135deg, #e8e8f124 0%, #58d4dea8 100%); }
 .stat-card.yellow-border { border-left-color: #f59e0b;  background: linear-gradient(135deg, #e8e8f124 0%, #f4b242a8 100%);}
+.stat-card.blue-border { border-left-color: #3b82f6; background: linear-gradient(135deg, #e8e8f124 0%, #3b82f633 100%); }
 
 .stat-header {
   display: flex;
@@ -167,6 +168,7 @@
 .stat-icon.cyan { background: #cffafe; }
 .stat-icon.green { background: #d1fae5; }
 .stat-icon.yellow { background: #fef3c7; }
+.stat-icon.blue { background: #dbeafe; }
 
 .stat-value {
   font-size: 32px;

@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import * as Highcharts from 'highcharts';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { FinancialEntry } from '../sales-dashboard.component';
+import HC_exporting from 'highcharts/modules/exporting';
+import HC_offlineExporting from 'highcharts/modules/offline-exporting';
+
+HC_exporting(Highcharts);
+HC_offlineExporting(Highcharts);
 
 @Component({
   selector: 'app-financial-charts',
@@ -148,7 +153,15 @@ export class FinancialChartsComponent implements OnChanges {
             fillColor: '#8b5cf6'
           }
         }
-      ]
+      ],
+      exporting: {
+        enabled: true,
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'downloadPNG', 'downloadPDF']
+          }
+        }
+      }
     };
 
     // Chart 2: Aggregated Expense Breakdown
@@ -213,7 +226,15 @@ export class FinancialChartsComponent implements OnChanges {
         name: 'Expenses',
         colorByPoint: true,
         data: pieData
-      }]
+      }],
+      exporting: {
+        enabled: true,
+        buttons: {
+          contextButton: {
+            menuItems: ['viewFullscreen', 'downloadPNG', 'downloadPDF']
+          }
+        }
+      }
     };
   }
 }

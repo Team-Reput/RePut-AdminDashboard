@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SalesEntry } from '../sales-dashboard.component';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-saleslog-table',
@@ -16,10 +17,11 @@ export class SaleslogTableComponent {
   selectedStatus = 'All';
 
   get filteredEntries(): SalesEntry[] {
+    const list = this.entries || [];
     if (this.selectedStatus === 'All') {
-      return this.entries;
+      return list;
     }
-    return this.entries.filter(e => e.leadStatus === this.selectedStatus);
+    return list.filter(e => e.leadStatus === this.selectedStatus);
   }
 
   downloadCSV() {
@@ -61,16 +63,10 @@ export class SaleslogTableComponent {
 
     const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
     
     const timestamp = new Date().toISOString().slice(0, 10);
     const filename = `sales_report_${this.selectedStatus.toLowerCase()}_${timestamp}.csv`;
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    
+    saveAs(blob, filename);
   }
 }
