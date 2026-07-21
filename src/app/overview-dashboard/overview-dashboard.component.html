@@ -11,11 +11,8 @@
         <p>Complete system overview and performance metrics</p>
       </div>
 
-      <app-loading *ngIf="isLoading"></app-loading>
-
-      <ng-container *ngIf="!isLoading">
         <!-- Technical Dashboard Section -->
-        <div class="dashboard-section">
+        <div class="dashboard-section" *ngIf="hasRole('admin', 'technical', 'monitor')">
           <div class="section-title">
             <h2>⚙️ Technical Dashboard</h2>
             <a routerLink="/admin/technical-dashboard" class="view-details-link">View Details →</a>
@@ -60,7 +57,7 @@
         </div>
 
         <!-- Sales Dashboard Section -->
-        <div class="dashboard-section">
+        <div class="dashboard-section" *ngIf="hasRole('admin', 'sales', 'monitor')">
           <div class="section-title">
             <h2>💼 Sales Dashboard</h2>
             <a routerLink="/admin/sales-dashboard" class="view-details-link">View Details →</a>
@@ -105,10 +102,10 @@
         </div>
 
         <!-- Financial Dashboard Section -->
-        <div class="dashboard-section" style="margin-top: 32px;">
+        <div class="dashboard-section" style="margin-top: 32px;" *ngIf="hasRole('admin', 'sales', 'monitor')">
           <div class="section-title">
             <h2>💰 Financial Dashboard</h2>
-            <a routerLink="/admin/sales-dashboard" class="view-details-link">View Details →</a>
+            <a routerLink="/admin/financial-dashboard" class="view-details-link">View Details →</a>
           </div>
           <div class="stats-grid">
             <div class="stat-card purple-border">
@@ -148,7 +145,6 @@
             </div>
           </div>
         </div>
-      </ng-container>
     </div>
   </main>
 </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SalesEntry } from '../sales-dashboard.component';
 import { saveAs } from 'file-saver';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-saleslog-table',
@@ -15,6 +16,12 @@ export class SaleslogTableComponent {
   @Input() entries: SalesEntry[] = [];
   @Output() onAddEntry = new EventEmitter<void>();
   selectedStatus = 'All';
+
+  constructor(private authService: AuthService) {}
+
+  hasRole(...roles: string[]): boolean {
+    return roles.includes(this.authService.getUserRole());
+  }
 
   get filteredEntries(): SalesEntry[] {
     const list = this.entries || [];

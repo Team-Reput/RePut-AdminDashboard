@@ -34,8 +34,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // If error status is 401 or 403 (Unauthorized/Forbidden - likely expired token)
-      if (error.status === 401 || error.status === 403) {
+      // 401 = expired/invalid token → attempt refresh
+      // 403 = insufficient role (RBAC) → do NOT refresh, just propagate
+      if (error.status === 401) {
         const user = authService.getUser();
         if (user && user.session_id) {
           // Attempt to refresh the token using the session_id

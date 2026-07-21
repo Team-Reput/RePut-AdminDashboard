@@ -50,7 +50,7 @@ export class RegisterComponent implements OnInit {
           Validators.pattern(/\d/) // Must contain a number to match backend validation
         ]
       ],
-      role: ['user', [Validators.required]],
+      role: ['sales', [Validators.required]],
       department: ['']
     });
   }

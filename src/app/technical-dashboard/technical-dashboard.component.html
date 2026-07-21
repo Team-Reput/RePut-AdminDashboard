@@ -13,10 +13,7 @@
         <p>Engineering monitoring & performance analytics</p>
       </div>
 
-      <app-loading *ngIf="isLoading"></app-loading>
-
-      <ng-container *ngIf="!isLoading">
-        <!-- Stats Cards -->
+      <!-- Stats Cards -->
         <div class="stats-grid">
           <div class="stat-card purple-border">
             <div class="stat-header">
@@ -24,7 +21,7 @@
               <span class="stat-icon purple">👥</span>
             </div>
             <div class="stat-value">{{ technicalStats.activeUsers }}</div>
-            <div class="stat-subtitle">+4.5%</div>
+            <div class="stat-subtitle">{{ technicalStats.activeUsersChange }}</div>
           </div>
 
           <div class="stat-card cyan-border">
@@ -33,7 +30,7 @@
               <span class="stat-icon cyan">🎯</span>
             </div>
             <div class="stat-value">{{ technicalStats.apiHits }}</div>
-            <div class="stat-subtitle">86.1% success</div>
+            <div class="stat-subtitle">{{ technicalStats.apiSuccessRate }}% success</div>
           </div>
 
           <div class="stat-card green-border">
@@ -42,7 +39,7 @@
               <span class="stat-icon green">📈</span>
             </div>
             <div class="stat-value">{{ technicalStats.apiLatency }}<span class="unit">ms</span></div>
-            <div class="stat-subtitle">Under SLA (50ms)</div>
+            <div class="stat-subtitle">{{ technicalStats.apiLatency <= technicalStats.slaBound ? 'Under' : 'Over' }} SLA ({{ technicalStats.slaBound }}ms)</div>
           </div>
 
           <div class="stat-card blue-border">
@@ -102,7 +99,6 @@
         <!-- Review Meetings Section -->
         <app-review-meetings [meetings]="meetings" [projects]="projects" (logMeeting)="openLogMeetingForm()">
         </app-review-meetings>
-      </ng-container>
     </div>
   </main>
 </div>
@@ -182,8 +178,7 @@
             </div>
             <input class="member-input" type="text" placeholder="Type a name, press Enter…" #teamMemberInput
               (keydown.enter)="$event.preventDefault(); addTeamMember(teamMemberInput.value); teamMemberInput.value = ''"
-              (keydown.comma)="$event.preventDefault(); addTeamMember(teamMemberInput.value); teamMemberInput.value = ''"
-              (keydown.backspace)="teamMemberInput.value === '' && removeTeamMember(newProjectTeamMembers.length - 1)">
+              (keydown.comma)="$event.preventDefault(); addTeamMember(teamMemberInput.value); teamMemberInput.value = ''">
           </div>
           <p class="field-note">Add anyone — no fixed list. Press Enter or comma after each name.</p>
         </div>
@@ -348,8 +343,7 @@
             </div>
             <input class="member-input" type="text" placeholder="Type a name, press Enter…" #attendeeInput
               (keydown.enter)="$event.preventDefault(); addAttendee(attendeeInput.value); attendeeInput.value = ''"
-              (keydown.comma)="$event.preventDefault(); addAttendee(attendeeInput.value); attendeeInput.value = ''"
-              (keydown.backspace)="attendeeInput.value === '' && removeAttendee(logMeetingAttendees.length - 1)">
+              (keydown.comma)="$event.preventDefault(); addAttendee(attendeeInput.value); attendeeInput.value = ''">
           </div>
         </div>
 

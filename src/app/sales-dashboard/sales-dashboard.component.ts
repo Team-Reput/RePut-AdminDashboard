@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormsModule, Validators, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import * as Highcharts from 'highcharts';
 import { HighchartsChartModule } from 'highcharts-angular';
 import HC_exporting from 'highcharts/modules/exporting';
@@ -14,8 +14,7 @@ import { FinanciallogTableComponent } from './financiallog-table/financiallog-ta
 import { FinancialChartsComponent } from './financial-charts/financial-charts.component';
 import { AuthService } from '../services/auth.service';
 import { SalesService } from '../services/sales.service';
-import { LoadingComponent } from '../loading/loading.component';
-import { forkJoin, finalize } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 export interface SalesEntry {
   date: string;
@@ -51,15 +50,13 @@ export interface FinancialEntry {
     HighchartsChartModule, 
     SaleslogTableComponent, 
     FinanciallogTableComponent,
-    FinancialChartsComponent,
-    LoadingComponent
+    FinancialChartsComponent
   ],
   templateUrl: './sales-dashboard.component.html',
   styleUrl: './sales-dashboard.component.scss'
 })
 export class SalesDashboardComponent {
   username = 'admin_user';
-  isLoading = false;
   isFormVisible: boolean = false;
   salesForm!: FormGroup;
   isSalesFormVisible: boolean = false;
@@ -91,11 +88,17 @@ export class SalesDashboardComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private salesService: SalesService
   ) { }
 
   ngOnInit(): void {
+    this.route.data.subscribe(data => {
+      if (data['mode']) {
+        this.dashboardMode = data['mode'];
+      }
+    });
     this.financialForm = this.fb.group({
       month: ['', Validators.required],
       year: ['2026', Validators.required],
@@ -128,14 +131,11 @@ export class SalesDashboardComponent {
     if (!user) return;
     const userId = user.user_id;
 
-    this.isLoading = true;
     forkJoin({
       salesEntries: this.salesService.getSalesEntries(userId),
       financialEntries: this.salesService.getFinancialEntries(userId),
       salesStats: this.salesService.getSalesDashboardSummary(userId)
-    }).pipe(
-      finalize(() => this.isLoading = false)
-    ).subscribe({
+    }).subscribe({
       next: ({ salesEntries, financialEntries, salesStats }) => {
         this.salesEntries = salesEntries.map(e => ({
           date: e.date,
@@ -399,47 +399,51 @@ export class SalesDashboardComponent {
   }
 
   setPipelineStatusBreakdownChart() {
-    const statusCounts: { [key: string]: number } = {
-      'in-talks': 0,
-      'qualified': 0,
-      'proposal': 0,
-      'negotiation': 0,
-      'closed-won': 0,
-      'closed-lost': 0
-    };
+    const statusCounts: { [key: string]: number } = {};
 
     this.salesEntries.forEach(e => {
-      if (statusCounts[e.leadStatus] !== undefined) {
-        statusCounts[e.leadStatus]++;
-      } else {
-        statusCounts[e.leadStatus] = 1;
+      const rawStatus = e.leadStatus ? e.leadStatus.trim() : 'Unknown';
+      if (rawStatus) {
+        statusCounts[rawStatus] = (statusCounts[rawStatus] || 0) + 1;
       }
     });
 
+    const palette = [
+      '#2563eb', // Blue
+      '#10b981', // Emerald Green
+      '#f59e0b', // Amber
+      '#8b5cf6', // Violet
+      '#ef4444', // Red
+      '#06b6d4', // Cyan
+      '#ec4899', // Pink
+      '#6366f1'  // Indigo
+    ];
+
+    const colorMap: { [key: string]: string } = {
+      'in-talks': '#3b82f6',
+      'intalks': '#3b82f6',
+      'discovery': '#06b6d4',
+      'qualified': '#2563eb',
+      'proposal': '#8b5cf6',
+      'proposal-sent': '#8b5cf6',
+      'negotiation': '#f59e0b',
+      'closed-won': '#10b981',
+      'closedwon': '#10b981',
+      'closed-lost': '#ef4444',
+      'closedlost': '#ef4444'
+    };
+
+    let paletteIndex = 0;
     const chartData = Object.keys(statusCounts)
       .filter(status => statusCounts[status] > 0)
       .map(status => {
-        const nameMap: { [key: string]: string } = {
-          'in-talks': 'In Talks',
-          'qualified': 'Qualified',
-          'proposal': 'Proposal Sent',
-          'negotiation': 'Negotiation',
-          'closed-won': 'Closed Won',
-          'closed-lost': 'Closed Lost'
-        };
-        const colorMap: { [key: string]: string } = {
-          'in-talks': '#f39c12',
-          'qualified': '#3498db',
-          'proposal': '#9b59b6',
-          'negotiation': '#e67e22',
-          'closed-won': '#2ecc71',
-          'closed-lost': '#e74c3c'
-        };
+        const normalized = status.toLowerCase().trim().replace(/\s+/g, '-');
+        const color = colorMap[normalized] || palette[paletteIndex++ % palette.length];
 
         return {
-          name: nameMap[status] || status,
+          name: status,
           y: statusCounts[status],
-          color: colorMap[status] || '#9b4dff'
+          color: color
         };
       });
 

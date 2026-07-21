@@ -13,34 +13,38 @@
         <option value="Cancelled">Cancelled</option>
         <option value="On hold">On hold</option>
       </select>
-      <button class="btn btn-verify" (click)="onNewProject()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      <button class="btn btn-verify" (click)="onNewProject()" *ngIf="hasRole('admin', 'technical')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
         New Project
       </button>
     </div>
   </div>
 
-  <div class="project-list" *ngIf="sortedAndFilteredProjects.length > 0; else emptyState">
-    <div 
-      *ngFor="let project of sortedAndFilteredProjects" 
-      class="pcard" 
-      [class.child]="!!project.parentProject" 
+  <div class="project-list" *ngIf="paginatedProjects.length > 0; else emptyState">
+    <div *ngFor="let project of paginatedProjects" class="pcard" [class.child]="!!project.parentProject"
       [style.--pri]="getPriorityColor(project.priority)">
-      
+
       <div class="connector" *ngIf="!!project.parentProject"></div>
-      
+
       <div class="prow-top">
         <div class="pname-block">
           <div class="title-with-toggle">
             <h4>{{ project.name }}</h4>
-            <button 
-              *ngIf="project.description"
-              class="desc-toggle-btn"
-              [class.expanded]="isExpanded(project.name)"
-              (click)="toggleDescription(project.name)"
-              title="Show project description">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
+            <button *ngIf="project.description" class="desc-toggle-pill" [class.active]="isExpanded(project.name)"
+              (click)="toggleDescription(project.name)" title="Toggle description">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Description</span>
+              <svg width="10" height="10" class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
             </button>
           </div>
@@ -54,51 +58,102 @@
             ↳ Sub-project of {{ project.parentProject }}
           </div>
         </div>
-        
+
         <div class="tag-row">
           <span class="tag" [ngClass]="'pri-' + project.priority">{{ project.priority.toUpperCase() }}</span>
           <span class="tag" [ngClass]="'status-' + project.status">
-            {{ project.status === 'progress' ? 'IN PROGRESS' : (project.status === 'hold' ? 'ON HOLD' : project.status.toUpperCase()) }}
+            {{ project.status === 'progress' ? 'IN PROGRESS' : (project.status === 'hold' ? 'ON HOLD' :
+            project.status.toUpperCase()) }}
           </span>
         </div>
       </div>
 
-      <div 
-        class="project-desc-drawer" 
-        *ngIf="project.description && isExpanded(project.name)">
-        {{ project.description }}
+      <div class="project-desc-drawer" *ngIf="project.description && isExpanded(project.name)">
+        <div class="desc-content">
+          {{ project.description }}
+        </div>
       </div>
-      
+
       <div class="prow-bottom">
         <div class="progress-block">
           <div class="ptrack">
-            <div class="pfill" [style.width.%]="project.progress" [style.background]="getProgressGradient(project)"></div>
+            <div class="pfill" [style.width.%]="project.progress" [style.background]="getProgressGradient(project)">
+            </div>
           </div>
           <span class="pnum">{{ project.progress }}%</span>
         </div>
-        
-        <div class="team-stack">
-          <span class="avatar" *ngFor="let member of project.teamMembers | slice:0:2" [title]="member">
-            {{ getInitials(member) }}
-          </span>
-          <span class="avatar more" *ngIf="project.teamMembers.length > 2" [title]="project.teamMembers.slice(2).join(', ')">
-            +{{ project.teamMembers.length - 2 }}
-          </span>
+
+        <div class="team-stack" *ngIf="project.teamMembers && project.teamMembers.length > 0">
+          <div class="avatar-group">
+            <span class="avatar" *ngFor="let member of project.teamMembers | slice:0:3">
+              {{ getInitials(member) }}
+            </span>
+            <span class="avatar more" *ngIf="project.teamMembers.length > 3">
+              +{{ project.teamMembers.length - 3 }}
+            </span>
+          </div>
+
+          <!-- Hover Popover showing all team members -->
+          <div class="team-popover">
+            <div class="popover-header">
+              <div class="popover-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Team Members
+              </div>
+              <span class="popover-badge">{{ project.teamMembers.length }}</span>
+            </div>
+            <div class="popover-body custom-scroll">
+              <div class="popover-member-item" *ngFor="let member of project.teamMembers">
+                <span class="member-avatar">{{ getInitials(member) }}</span>
+                <span class="member-name">{{ member }}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        
+
         <span class="deadline" [ngClass]="getDeadlineInfo(project).class">
           {{ getDeadlineInfo(project).text }}
         </span>
-        
+
         <div class="qactions">
-          <button class="qbtn sales" title="Update Progress" (click)="onUpdateProgress(project)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/></svg>
+          <button class="qbtn sales" title="Update Progress" (click)="onUpdateProgress(project)" *ngIf="hasRole('admin', 'technical')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 17l6-6 4 4 8-8" />
+            </svg>
           </button>
           <button class="qbtn amber" title="Log Meeting" (click)="onLogMeeting(project)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="5" width="18" height="16" rx="2" />
+              <path d="M8 3v4M16 3v4M3 10h18" />
+            </svg>
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Pagination Bar -->
+  <div class="pagination-bar" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }}–{{ Math.min(currentPage * pageSize, sortedAndFilteredProjects.length) }} of {{ sortedAndFilteredProjects.length }} projects
+    </div>
+    <div class="pagination-controls">
+      <button class="pg-btn" [disabled]="currentPage === 1" (click)="prevPage()">‹ Prev</button>
+      <div class="pg-numbers">
+        <button 
+          *ngFor="let page of pageNumbers" 
+          class="pg-num" 
+          [class.active]="page === currentPage" 
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+      <button class="pg-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">Next ›</button>
     </div>
   </div>
 
@@ -109,9 +164,9 @@
   </ng-template>
 
   <p class="section-note">
-    {{ totalCount }} project{{ totalCount === 1 ? '' : 's' }} · 
-    {{ parentCount }} parent{{ parentCount === 1 ? '' : 's' }} · 
-    {{ subProjectCount }} sub-project{{ subProjectCount === 1 ? '' : 's' }} · 
+    {{ totalCount }} project{{ totalCount === 1 ? '' : 's' }} ·
+    {{ parentCount }} parent{{ parentCount === 1 ? '' : 's' }} ·
+    {{ subProjectCount }} sub-project{{ subProjectCount === 1 ? '' : 's' }} ·
     updated live from Update Progress entries
   </p>
 </div>
