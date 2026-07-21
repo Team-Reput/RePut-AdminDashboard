@@ -46,6 +46,7 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  border: 1px solid #e5e7eb;
 }
 
 .premium-table th {
@@ -54,7 +55,8 @@
   font-weight: 600;
   text-transform: uppercase;
   color: #6b7280;
-  border-bottom: 2px solid #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
   letter-spacing: 0.05em;
   white-space: nowrap;
 }
@@ -63,7 +65,7 @@
   padding: 14px 16px;
   font-size: 13px;
   color: #374151;
-  border-bottom: 1px solid #f3f4f6;
+  border: 1px solid #e5e7eb;
 }
 
 .premium-table tbody tr:hover {
@@ -169,7 +171,7 @@
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(70, 64, 222, 0.25);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   i {
     font-size: 12px;
   }
@@ -185,4 +187,3 @@
     box-shadow: 0 2px 4px rgba(70, 64, 222, 0.25);
   }
 }
-

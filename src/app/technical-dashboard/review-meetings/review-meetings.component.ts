@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Project } from '../../models/project.model';
 import { Meeting } from '../../models/meeting.model';
-
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-review-meetings',
@@ -19,8 +19,21 @@ export class ReviewMeetingsComponent {
   @Output() logMeeting = new EventEmitter<void>();
 
   selectedFilter = 'All';
+  currentPage = 1;
+  pageSize = 5;
+  Math = Math;
   expandedMeetingId: string | null = null;
   selectedMeetingForDetails: Meeting | null = null;
+
+  constructor(private authService: AuthService) {}
+
+  hasRole(...roles: string[]): boolean {
+    return roles.includes(this.authService.getUserRole());
+  }
+
+  onFilterChange() {
+    this.currentPage = 1;
+  }
 
   onLogMeeting() {
     this.logMeeting.emit();
@@ -62,5 +75,37 @@ export class ReviewMeetingsComponent {
 
   get meetingsWithRecordings(): number {
     return this.meetings.filter(m => !!m.recordingLength).length;
+  }
+
+  // Pagination Getters & Helpers
+  get totalPages(): number {
+    return Math.ceil(this.filteredMeetings.length / this.pageSize) || 1;
+  }
+
+  get paginatedMeetings(): Meeting[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredMeetings.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
   }
 }

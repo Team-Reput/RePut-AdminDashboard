@@ -37,19 +37,38 @@ export class FinancialChartsComponent implements OnChanges {
     }
 
     const monthsOrder: { [key: string]: number } = {
-      'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6,
-      'july': 7, 'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12
+      'jan': 1, 'january': 1,
+      'feb': 2, 'february': 2,
+      'mar': 3, 'march': 3,
+      'apr': 4, 'april': 4,
+      'may': 5,
+      'jun': 6, 'june': 6,
+      'jul': 7, 'july': 7,
+      'aug': 8, 'august': 8,
+      'sep': 9, 'september': 9,
+      'oct': 10, 'october': 10,
+      'nov': 11, 'november': 11,
+      'dec': 12, 'december': 12
     };
 
-    // Sort chronologically by year and month
+    // Sort chronologically by date/year/month (oldest on left, latest on right)
     const sortedEntries = [...this.entries].sort((a, b) => {
+      if (a.startDate && b.startDate) {
+        const tA = new Date(a.startDate).getTime();
+        const tB = new Date(b.startDate).getTime();
+        if (!isNaN(tA) && !isNaN(tB)) {
+          return tA - tB;
+        }
+      }
       const yearA = parseInt(a.year, 10);
       const yearB = parseInt(b.year, 10);
-      if (yearA !== yearB) {
+      if (yearA !== yearB && !isNaN(yearA) && !isNaN(yearB)) {
         return yearA - yearB;
       }
-      const monthA = monthsOrder[a.month.toLowerCase()] || 0;
-      const monthB = monthsOrder[b.month.toLowerCase()] || 0;
+      const keyA = (a.month || '').toLowerCase().trim();
+      const keyB = (b.month || '').toLowerCase().trim();
+      const monthA = monthsOrder[keyA] || monthsOrder[keyA.substring(0, 3)] || 0;
+      const monthB = monthsOrder[keyB] || monthsOrder[keyB.substring(0, 3)] || 0;
       return monthA - monthB;
     });
 

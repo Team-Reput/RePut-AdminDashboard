@@ -4,25 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { SalesService } from '../services/sales.service';
-import { LoadingComponent } from '../loading/loading.component';
-import { forkJoin, finalize } from 'rxjs';
+import { TechnicalService } from '../services/technical.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-overview-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LoadingComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './overview-dashboard.component.html',
   styleUrl: './overview-dashboard.component.scss'
 })
 export class OverviewDashboardComponent implements OnInit {
   username = 'admin_user';
-  isLoading = false;
+  userRole = '';
 
   technicalStats = {
-    activeUsers: 127,
-    apiHits: 3298,
-    apiLatency: 89.39,
-    networkTraffic: 168.82
+    activeUsers: 0,
+    apiHits: 0,
+    apiLatency: 0,
+    networkTraffic: 0
   };
 
   salesStats = {
@@ -41,7 +41,8 @@ export class OverviewDashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private salesService: SalesService
+    private salesService: SalesService,
+    private technicalService: TechnicalService
   ) { }
 
   ngOnInit(): void {
@@ -49,45 +50,67 @@ export class OverviewDashboardComponent implements OnInit {
     if (!user) return;
     const userId = user.user_id;
     this.username = user.full_name || 'admin_user';
+    this.userRole = this.authService.getUserRole();
 
-    this.isLoading = true;
-    forkJoin({
-      salesStats: this.salesService.getSalesDashboardSummary(userId),
-      financialEntries: this.salesService.getFinancialEntries(userId)
-    }).pipe(
-      finalize(() => this.isLoading = false)
-    ).subscribe({
-      next: ({ salesStats, financialEntries }) => {
-        this.salesStats = salesStats;
+    // Technical stats: loaded for admin, technical, or monitor roles
+    if (this.hasRole('admin', 'technical', 'monitor')) {
+      this.technicalService.getStats().subscribe({
+        next: (techStats) => {
+          this.technicalStats = {
+            activeUsers: techStats.activeUsers,
+            apiHits: techStats.apiHits,
+            apiLatency: techStats.apiLatency,
+            networkTraffic: techStats.networkTrafficDown
+          };
+        },
+        error: (err) => {
+          console.error('Failed to load technical stats:', err);
+        }
+      });
+    }
 
-        let revenue = 0;
-        let saas = 0;
-        let marketing = 0;
-        let travel = 0;
-        let admin = 0;
-        let other = 0;
+    // Sales & Financial stats: loaded for admin, sales, or monitor roles
+    if (this.hasRole('admin', 'sales', 'monitor')) {
+      forkJoin({
+        salesStats: this.salesService.getSalesDashboardSummary(userId),
+        financialEntries: this.salesService.getFinancialEntries(userId)
+      }).subscribe({
+        next: ({ salesStats, financialEntries }) => {
+          this.salesStats = salesStats;
 
-        financialEntries.forEach(e => {
-          revenue += Number(e.totalRevenue || 0);
-          saas += Number(e.saasRevenue || 0);
-          marketing += Number(e.salesMarketingCost || 0);
-          travel += Number(e.travelReimbursements || 0);
-          admin += Number(e.adminExpenses || 0);
-          other += Number(e.otherExpenses || 0);
-        });
+          let revenue = 0;
+          let saas = 0;
+          let marketing = 0;
+          let travel = 0;
+          let admin = 0;
+          let other = 0;
 
-        const expenses = marketing + travel + admin + other;
-        this.financialStats = {
-          totalRevenue: revenue,
-          saasRevenue: saas,
-          totalExpenses: expenses,
-          netProfit: revenue - expenses
-        };
-      },
-      error: (err) => {
-        console.error('Failed to load overview data:', err);
-      }
-    });
+          financialEntries.forEach(e => {
+            revenue += Number(e.totalRevenue || 0);
+            saas += Number(e.saasRevenue || 0);
+            marketing += Number(e.salesMarketingCost || 0);
+            travel += Number(e.travelReimbursements || 0);
+            admin += Number(e.adminExpenses || 0);
+            other += Number(e.otherExpenses || 0);
+          });
+
+          const expenses = marketing + travel + admin + other;
+          this.financialStats = {
+            totalRevenue: revenue,
+            saasRevenue: saas,
+            totalExpenses: expenses,
+            netProfit: revenue - expenses
+          };
+        },
+        error: (err) => {
+          console.error('Failed to load sales/financial overview data:', err);
+        }
+      });
+    }
+  }
+
+  hasRole(...roles: string[]): boolean {
+    return roles.includes(this.userRole);
   }
 
   logout(): void {

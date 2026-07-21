@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinancialEntry } from '../sales-dashboard.component';
 import { saveAs } from 'file-saver';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-financiallog-table',
@@ -15,6 +16,12 @@ export class FinanciallogTableComponent {
   @Input() entries: FinancialEntry[] = [];
   @Output() onAddEntry = new EventEmitter<void>();
   selectedPeriod = 'All';
+
+  constructor(private authService: AuthService) {}
+
+  hasRole(...roles: string[]): boolean {
+    return roles.includes(this.authService.getUserRole());
+  }
 
   get filteredEntries(): FinancialEntry[] {
     const list = this.entries || [];

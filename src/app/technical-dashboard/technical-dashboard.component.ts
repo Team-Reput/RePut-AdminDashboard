@@ -16,19 +16,17 @@ import { ReviewMeetingsComponent } from './review-meetings/review-meetings.compo
 import { Meeting } from '../models/meeting.model';
 import { MeetingService } from '../services/meeting.service';
 import { AuthService } from '../services/auth.service';
-import { LoadingComponent } from '../loading/loading.component';
+import { TechnicalStats } from '../models/technical-stats.model';
 
 @Component({
   selector: 'app-technical-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, HighchartsChartModule, RouterModule, ProjectsHealthMonitoringComponent, ReviewMeetingsComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, HighchartsChartModule, RouterModule, ProjectsHealthMonitoringComponent, ReviewMeetingsComponent],
   templateUrl: './technical-dashboard.component.html',
   styleUrl: './technical-dashboard.component.scss'
 })
 export class TechnicalDashboardComponent {
   username = 'John Doe';
-  isLoading = false;
-  private activeLoads = 0;
   Highcharts = Highcharts;
   loanDisbursementChartOptions: any;
   pieChartOptions: any;
@@ -53,10 +51,13 @@ export class TechnicalDashboardComponent {
   newProjectTeamMembers: string[] = ['Jyoti Sharma', 'Rahul Verma'];
   logMeetingAttendees: string[] = ['Jyoti Sharma', 'Client stakeholder'];
 
-  technicalStats = {
+  technicalStats: TechnicalStats = {
     activeUsers: 181,
+    activeUsersChange: '+12% from last week',
     apiHits: 4879,
+    apiSuccessRate: 99.4,
     apiLatency: 43.06,
+    slaBound: 50,
     networkTrafficUp: 218.98,
     networkTrafficDown: 463.73
   };
@@ -125,33 +126,17 @@ export class TechnicalDashboardComponent {
     this.initializeMeetings();
   }
 
-  private startLoad() {
-    this.activeLoads++;
-    this.isLoading = true;
-  }
-
-  private endLoad() {
-    this.activeLoads--;
-    if (this.activeLoads <= 0) {
-      this.activeLoads = 0;
-      this.isLoading = false;
-    }
-  }
-
   initializeProjects() {
     const currentUser = this.authService.getUser();
     const currentUserId = currentUser ? currentUser.user_id : 1;
 
-    this.startLoad();
     this.projectService.getProjectsByUser(currentUserId, this.currentFilter).subscribe({
       next: (dbProjects: Project[]) => {
         this.projects = dbProjects;
-        this.endLoad();
       },
       error: (err) => {
         console.error('Error fetching projects from database:', err);
         this.projects = [];
-        this.endLoad();
       }
     });
   }
@@ -165,7 +150,6 @@ export class TechnicalDashboardComponent {
     const currentUser = this.authService.getUser();
     const currentUserId = currentUser ? currentUser.user_id : 1;
 
-    this.startLoad();
     this.meetingService.getMeetingsByUser(currentUserId).subscribe({
       next: (dbMeetings) => {
         if (dbMeetings && dbMeetings.length > 0) {
@@ -177,7 +161,7 @@ export class TechnicalDashboardComponent {
             date: m.date,
             time: m.time,
             minutesOfMeeting: m.minutesOfMeeting,
-            attendees: Array.isArray(m.attendees) ? m.attendees : JSON.parse(m.attendees || '[]'),
+            attendees: this.parseAttendees(m.attendees),
             recordingLength: m.recordingLength,
             filesCount: Number(m.filesCount || 0)
           }));
@@ -186,7 +170,6 @@ export class TechnicalDashboardComponent {
         } else {
           this.useDefaultMeetings();
         }
-        this.endLoad();
       },
       error: (err) => {
         console.error('Error fetching meetings from database, falling back to storage:', err);
@@ -196,7 +179,6 @@ export class TechnicalDashboardComponent {
         } else {
           this.useDefaultMeetings();
         }
-        this.endLoad();
       }
     });
   }
@@ -214,6 +196,22 @@ export class TechnicalDashboardComponent {
   getTodayDate(): string {
     const today = new Date();
     return today.toISOString().split('T')[0];
+  }
+
+  // Safe attendees parser
+  parseAttendees(val: any): string[] {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+      try {
+        const p = JSON.parse(val);
+        if (Array.isArray(p)) return p;
+      } catch {
+        return val.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      return [val.trim()];
+    }
+    return [];
   }
 
   // Get Initials for Avatars
@@ -326,7 +324,7 @@ export class TechnicalDashboardComponent {
       const currentUserId = currentUser ? currentUser.user_id : 1;
       this.projectService.insertProject(newProj, currentUserId).subscribe({
         next: (savedProject: Project) => {
-          this.projects.push(savedProject);
+          this.initializeProjects();
           this.closeNewProjectForm();
 
           // Reset team member pickers
@@ -484,7 +482,7 @@ export class TechnicalDashboardComponent {
             date: savedMeeting.date,
             time: savedMeeting.time,
             minutesOfMeeting: savedMeeting.minutesOfMeeting,
-            attendees: Array.isArray(savedMeeting.attendees) ? savedMeeting.attendees : JSON.parse(savedMeeting.attendees || '[]'),
+            attendees: this.parseAttendees(savedMeeting.attendees),
             recordingLength: savedMeeting.recordingLength,
             filesCount: Number(savedMeeting.filesCount || 0)
           };

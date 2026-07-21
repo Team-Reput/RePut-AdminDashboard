@@ -6,8 +6,8 @@
         <p>Create, edit, manage data points dynamically and export charts</p>
       </div>
 
-      <!-- Row 1: Configurations, Add Data, and Logs List -->
-      <div class="charts-generator-row-1">
+      <!-- Row 1: Configurations, Add Data, and Logs List (Admin only) -->
+      <div class="charts-generator-row-1" *ngIf="hasRole('admin')">
         <!-- Chart Metadata Card -->
         <div class="premium-card">
           <h3 class="card-title">1. Chart Configuration</h3>
@@ -189,6 +189,7 @@
                   </button>
                   <button 
                     class="btn-delete-saved" 
+                    *ngIf="hasRole('admin')"
                     (click)="deleteChart(chart.id)" 
                     title="Delete Saved Chart">
                     &times;

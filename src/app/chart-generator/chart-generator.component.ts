@@ -58,6 +58,10 @@ export class ChartGeneratorComponent implements OnInit {
     private authService: AuthService
   ) {}
 
+  hasRole(...roles: string[]): boolean {
+    return roles.includes(this.authService.getUserRole());
+  }
+
   ngOnInit(): void {
     const user = this.authService.getUser();
     if (user) {

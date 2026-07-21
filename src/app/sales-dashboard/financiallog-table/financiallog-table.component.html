@@ -1,5 +1,5 @@
 <div class="logs-header-bar">
-  <button type="button" class="btn-premium btn-premium-verify icon-only" (click)="onAddEntry.emit()" title="Financial Entry">
+  <button type="button" class="btn-premium btn-premium-verify icon-only" (click)="onAddEntry.emit()" title="Financial Entry" *ngIf="hasRole('admin')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M12 5v14M5 12h14"/></svg>
   </button>
   <div class="filter-actions">

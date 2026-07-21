@@ -88,10 +88,10 @@
               <path d="M7.5 11.5L9 10m0 0l4-4m-4 4L6 13M10 5a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             <select id="role" formControlName="role" class="select-input">
-              <option value="user">Standard User</option>
-              <option value="sales">Sales Team</option>
-              <option value="technical">Technical Team</option>
-              <option value="admin">Administrator</option>
+              <option value="sales">Sales</option>
+              <option value="technical">Technical</option>
+              <option value="admin">Admin</option>
+              <option value="monitor">Monitor</option>
             </select>
           </div>
           <span class="field-err" *ngIf="isFieldInvalid('role')">Role is required.</span>

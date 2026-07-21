@@ -12,24 +12,9 @@
           <h1>{{ dashboardMode === 'sales' ? 'Sales Dashboard' : 'Financial Dashboard' }}</h1>
           <p>{{ dashboardMode === 'sales' ? 'Team performance overview' : 'Financial performance overview' }}</p>
         </div>
-        <div class="dashboard-toggle-header">
-          <div class="toggle-group">
-            <button class="toggle-btn toggle-sales" [class.active]="dashboardMode === 'sales'"
-              (click)="setDashboardMode('sales')">
-              Sales Dashboard
-            </button>
-            <button class="toggle-btn toggle-financial" [class.active]="dashboardMode === 'financial'"
-              (click)="setDashboardMode('financial')">
-              Financial Dashboard
-            </button>
-          </div>
-        </div>
       </div>
 
-      <app-loading *ngIf="isLoading"></app-loading>
-
-      <ng-container *ngIf="!isLoading">
-        <!-- Stats Cards (Sales) -->
+      <!-- Stats Cards (Sales) -->
         <div class="stats-grid" *ngIf="dashboardMode === 'sales'">
           <div class="stat-card purple-border">
             <div class="stat-header">
@@ -149,7 +134,6 @@
             (onAddEntry)="openFinancialForm()">
           </app-financiallog-table>
         </div>
-      </ng-container>
     </div>
   </div>
 </div>

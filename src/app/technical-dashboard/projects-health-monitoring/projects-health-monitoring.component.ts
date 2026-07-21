@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Project } from '../../models/project.model';
-
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-projects-health-monitoring',
@@ -20,6 +20,15 @@ export class ProjectsHealthMonitoringComponent {
   @Output() filterChanged = new EventEmitter<string>();
 
   selectedFilter = 'All';
+  currentPage = 1;
+  pageSize = 5;
+  Math = Math;
+
+  constructor(private authService: AuthService) {}
+
+  hasRole(...roles: string[]): boolean {
+    return roles.includes(this.authService.getUserRole());
+  }
 
   // Track expanded state of descriptions per project
   expandedProjects: { [projectName: string]: boolean } = {};
@@ -33,6 +42,7 @@ export class ProjectsHealthMonitoringComponent {
   }
 
   onFilterChange() {
+    this.currentPage = 1;
     this.filterChanged.emit(this.selectedFilter);
   }
 
@@ -220,5 +230,37 @@ export class ProjectsHealthMonitoringComponent {
 
   get subProjectCount(): number {
     return this.projects.filter(p => !!p.parentProject).length;
+  }
+
+  // Pagination Getters & Helpers
+  get totalPages(): number {
+    return Math.ceil(this.sortedAndFilteredProjects.length / this.pageSize) || 1;
+  }
+
+  get paginatedProjects(): Project[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.sortedAndFilteredProjects.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
   }
 }
